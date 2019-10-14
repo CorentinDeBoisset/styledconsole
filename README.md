@@ -72,6 +72,7 @@ styledconsole.Table(["header1", "header2"], [["cell 1-1", "cell 1-2"], ["cell 2-
 ```
 
 `NewLine()`
+
 `NewLines(newLineCount int)`
 
 It displays one or more blank lines in the command output.
@@ -185,6 +186,7 @@ res := styledconsole.AskHidden("What do you want to hide from your neighbors?", 
 
 
 `Confirm(myquestion string) bool`
+
 `ConfirmWithDefault(myquestion string, defaultAnswer bool) bool`
 
 It asks a Yes/No question to the user and it only returns true or false:
@@ -203,6 +205,7 @@ styledconsole.ConfirmWithDefault("Is false as true to true while true can be fal
 
 
 `Choice(myquestion, choices []string)`
+
 `ChoiceWithDefault(myquestion, choices []string, defaultAnswer string)`
 
 It asks a question whose answer is constrained to the given list of valid answers:
