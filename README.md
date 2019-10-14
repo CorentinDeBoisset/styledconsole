@@ -149,6 +149,7 @@ styledconsole.ProgressFinish()
 ## User Input Methods
 
 `Ask(myquestion string, func(string) bool) string`
+
 `AskWithDefault(myquestion string, defaultAnswer string, func(string) bool) string`
 
 It asks the user to provide some value, with or without a default value.
