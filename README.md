@@ -11,11 +11,18 @@ Simply run:
 
     go get github.com/coreoas/styledconsole
 
-# Testing
+# Contrubuting
 
-You can test the library, by running:
+If you want to open an MR, be sure to run the tests with:
 
+    find . -type f -regex ".*\.go$" | xargs goimports
+    go lint ./...
+    go vet ./...
     go test ./...
+
+If you want to run all these tests automatically before every commit, add the custom git-hooks with:
+
+    git config core.hooksPath .githooks
 
 # Methods
 

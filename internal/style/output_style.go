@@ -3,8 +3,8 @@ package style
 import (
 	"fmt"
 	"os"
-	"strings"
 	"sort"
+	"strings"
 )
 
 var (
@@ -12,44 +12,44 @@ var (
 	// where the int value are the escape sequence to send in the console
 	// to either set or unset the style
 	availableForegroundColors = map[string]([2]string){
-		"black":	[2]string{"30", "39"},
-		"red":		[2]string{"31", "39"},
-		"green":	[2]string{"32", "39"},
-		"yellow":	[2]string{"33", "39"},
-		"blue":		[2]string{"34", "39"},
-		"magenta":	[2]string{"35", "39"},
-		"cyan":		[2]string{"36", "39"},
-		"white":	[2]string{"37", "39"},
-		"default":	[2]string{"39", "39"},
+		"black":   [2]string{"30", "39"},
+		"red":     [2]string{"31", "39"},
+		"green":   [2]string{"32", "39"},
+		"yellow":  [2]string{"33", "39"},
+		"blue":    [2]string{"34", "39"},
+		"magenta": [2]string{"35", "39"},
+		"cyan":    [2]string{"36", "39"},
+		"white":   [2]string{"37", "39"},
+		"default": [2]string{"39", "39"},
 	}
 	availableBackgroundColors = map[string]([2]string){
-		"black":	[2]string{"40", "49"},
-		"red":		[2]string{"41", "49"},
-		"green":	[2]string{"42", "49"},
-		"yellow":	[2]string{"43", "49"},
-		"blue":		[2]string{"44", "49"},
-		"magenta":	[2]string{"45", "49"},
-		"cyan":		[2]string{"46", "49"},
-		"white":	[2]string{"47", "49"},
-		"default":	[2]string{"49", "49"},
+		"black":   [2]string{"40", "49"},
+		"red":     [2]string{"41", "49"},
+		"green":   [2]string{"42", "49"},
+		"yellow":  [2]string{"43", "49"},
+		"blue":    [2]string{"44", "49"},
+		"magenta": [2]string{"45", "49"},
+		"cyan":    [2]string{"46", "49"},
+		"white":   [2]string{"47", "49"},
+		"default": [2]string{"49", "49"},
 	}
-	availableOptions = map[string]([2]string) {
-		"bold":			[2]string{"1", "22"},
-		"underscore":	[2]string{"4", "24"},
-		"blink":		[2]string{"5", "25"},
-		"reverse":		[2]string{"7", "27"},
-		"conceal":		[2]string{"8", "28"},
+	availableOptions = map[string]([2]string){
+		"bold":       [2]string{"1", "22"},
+		"underscore": [2]string{"4", "24"},
+		"blink":      [2]string{"5", "25"},
+		"reverse":    [2]string{"7", "27"},
+		"conceal":    [2]string{"8", "28"},
 	}
 )
 
 // OutputStyle contains the required data to print special text on the console
 // They reference the available styles juste above
 type OutputStyle struct {
-	Foreground string
-	Background string
-	Href string
+	Foreground           string
+	Background           string
+	Href                 string
 	HandleHrefGracefully *bool
-	Options []string
+	Options              []string
 }
 
 // Apply surrounds a given string with the adequate escape sequence
