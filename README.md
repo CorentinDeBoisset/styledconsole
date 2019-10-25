@@ -11,6 +11,12 @@ Simply run:
 
     go get github.com/coreoas/styledconsole
 
+# Testing
+
+You can test the library, by running:
+
+    go test ./...
+
 # Methods
 
 ## Titling methods
