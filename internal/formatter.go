@@ -2,29 +2,29 @@ package internal
 
 import (
 	"fmt"
-	"strings"
 	"regexp"
+	"strings"
+
 	"github.com/coreoas/styledconsole/internal/style"
 )
 
 var (
-	escapeRegexp = regexp.MustCompile(`[^\\]?<`)
-	tagRegexp = regexp.MustCompile(`(?i)<([a-z][^<>]*|/([a-z][^<>]*)?)>`)
-	styleRegexp = regexp.MustCompile(`([^=]+)=([^;]+)(;|$)`)
+	escapeRegexp    = regexp.MustCompile(`[^\\]?<`)
+	tagRegexp       = regexp.MustCompile(`(?i)<([a-z][^<>]*|/([a-z][^<>]*)?)>`)
+	styleRegexp     = regexp.MustCompile(`([^=]+)=([^;]+)(;|$)`)
 	separatorRegexp = regexp.MustCompile(`([^,;]+)`)
 
 	// Some useful pre-defined styles
-	errorStyle		style.OutputStyle
-	infoStyle		style.OutputStyle
-	commentStyle	style.OutputStyle
-	questionStyle	style.OutputStyle
+	errorStyle    style.OutputStyle
+	infoStyle     style.OutputStyle
+	commentStyle  style.OutputStyle
+	questionStyle style.OutputStyle
 )
 
 // Escape will prepend all '<' with a backslash
 func Escape(text string) string {
 	return escapeRegexp.ReplaceAllString(text, `$1\<`)
 }
-
 
 // EscapeTrailingBackslash removes any trailing backslashes while keeping the length of the string
 func EscapeTrailingBackslash(text string) string {
@@ -33,7 +33,7 @@ func EscapeTrailingBackslash(text string) string {
 	if textLen > 0 && newText[textLen-1:] == `\` {
 		newText = strings.TrimRight(text, `\`)
 		newText = strings.ReplaceAll(newText, "\x00", ``)
-		newText = fmt.Sprintf("%s%s", newText, strings.Repeat("\x00", textLen - len(newText)))
+		newText = fmt.Sprintf("%s%s", newText, strings.Repeat("\x00", textLen-len(newText)))
 	}
 
 	return newText
@@ -152,7 +152,7 @@ func formatStringWithStyle(text string, current *string, width int, currentLineL
 	if text == `` {
 		return ``
 	}
-	if width == 0 || currentLineLength == nil{
+	if width == 0 || currentLineLength == nil {
 		return stack.GetCurrent().Apply(text)
 	}
 
@@ -163,13 +163,13 @@ func formatStringWithStyle(text string, current *string, width int, currentLineL
 	// The prefix is aimed at filling the current line with just enought characters
 	prefix := ``
 	if *currentLineLength > 0 {
-		prefix = fmt.Sprintf("%s\n", strings.TrimRight(getSubstring(text, 0, width - *currentLineLength), " "))
-		text = getSubstring(text, width - *currentLineLength, len(text))
+		prefix = fmt.Sprintf("%s\n", strings.TrimRight(getSubstring(text, 0, width-*currentLineLength), " "))
+		text = getSubstring(text, width-*currentLineLength, len(text))
 	}
 
 	// Then we cut the text into width-sized elements
 	lineSplitRegexp := regexp.MustCompile(fmt.Sprintf(`([^\n]{%d}) *`, width))
-	textHasNewLine := len(text) > 0 && text[len(text) - 1:] == "\n"
+	textHasNewLine := len(text) > 0 && text[len(text)-1:] == "\n"
 	text = fmt.Sprintf("%s%s", prefix, lineSplitRegexp.ReplaceAllString(text, "$1\n"))
 
 	// Merge all line endings at the end of the text together
@@ -178,7 +178,7 @@ func formatStringWithStyle(text string, current *string, width int, currentLineL
 	}
 
 	// If there is no started line, and the last item in the current string is not a \n, we add one before the new text
-	if *currentLineLength == 0 && len(*current) > 0 && (*current)[len(*current) - 1:] != "\n" {
+	if *currentLineLength == 0 && len(*current) > 0 && (*current)[len(*current)-1:] != "\n" {
 		text = fmt.Sprintf("\n%s", text)
 	}
 

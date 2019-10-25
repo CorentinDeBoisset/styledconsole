@@ -15,7 +15,7 @@ func assertEqualsString(t *testing.T, a string, b string) {
 }
 
 // TestApplyStyle checks that we can apply a test on a string
-func TestApplyStyle(t *testing .T) {
+func TestApplyStyle(t *testing.T) {
 	mystyle := OutputStyle{Foreground: "green", Background: "red", Options: []string{"bold"}}
 
 	assertEqualsString(t, mystyle.Apply("This is a text."), "\033[1;32;41mThis is a text.\033[22;39;49m")
