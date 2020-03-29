@@ -24,9 +24,50 @@ If you want to run all these tests automatically before every commit, add the cu
 
     git config core.hooksPath .githooks
 
-# Methods
+# Usage
 
-## Titling methods
+## Styling tags
+
+Any text can be augmented with style, by enclosing the text with tags like this:
+
+    <fg=blue>Blue foreground text</fg=blue>
+
+
+It is possible to imbricate the tags like this:
+
+    <fg=blue>Text with blue foreground, <bg=red>text with blue foreground and red background</bg=red>, text with blue foreground again</fg=blue>
+
+If you want to, you can use the `</>` shorthand to close the last opened tag. The previous text thus becomes:
+
+    <fg=blue>Text with blue foreground, <bg=red>text with blue foreground and red background</>, text with blue foreground again</>
+
+One can set multiple properties in a single tag, by separating them with `;`:
+
+    <fg=blue;bg=red>text with blue fg and red bg</>
+
+The available properties are the following:
+
+* `fg=color`: sets the foreground color (value must be in the set below).
+* `bg=color`: sets the background color (the value must be in the set below).
+* `href=http://link/to/resource`: adds a hypertext link to the given location.
+* `options=opt1,opt2,opt3`: Adds additionnal text decorations. Available options are `bold`, `underscore`, `blink`, `reverse` and `conceal`.
+
+The available colors are the standard ANSI set:
+
+* black
+* red
+* green
+* yellow
+* blue
+* magenta
+* cyan
+* white
+* default (use the terminal's default)
+
+
+## Methods
+
+### Titling methods
 
 `Title(mytitle string)`
 
@@ -50,7 +91,7 @@ This is only needed in complex commands which want to better separate their cont
 styledconsole.Section("My section")
 ```
 
-## Content methods
+### Content methods
 
 `Text(sometext string)`
 
@@ -100,7 +141,7 @@ styledconsole.NewLine()
 styledconsole.NewLines(10)
 ```
 
-## Admonition Methods
+### Admonition Methods
 
 `Note(sometext string)`
 
@@ -124,7 +165,7 @@ The resulting contents resemble an error message, so you should avoid using this
 styledconsole.Caution("Wow, be careful about this or that")
 ```
 
-## Progress Bar Methods
+### Progress Bar Methods
 
 `ProgressStart(nbSteps int)`
 
@@ -159,7 +200,7 @@ It finishes the progress bar:
 styledconsole.ProgressFinish()
 ```
 
-## User Input Methods
+### User Input Methods
 
 `Ask(myquestion string, func(string) bool) string`
 
@@ -231,7 +272,7 @@ styledconsole.Choice("To be or not to be?", ["To be", "Not to be"])
 styledconsole.ChoiceWithDefault("Should I stay or should I go", ["Stay", "Umpf", "Go"], "Umpf")
 ```
 
-## Result methods
+### Result methods
 
 `Success(sometext string)`
 
