@@ -32,6 +32,16 @@ func TestExtractStyle(t *testing.T) {
 	assert.Equal((*style.OutputStyle)(nil), extractStyle("toto=titi;fg=red"))
 }
 
+// TestEscapeTrailingBackslash checks we can remove trailing "\"" from texts
+func TestEscapeTrailingBackslash(t *testing.T) {
+	assert := assert.New(t)
+
+	assert.Equal("noop", EscapeTrailingBackslash("noop"))
+	assert.Equal("super super\x00\x00", EscapeTrailingBackslash("super super\\\\"))
+	assert.Equal("super \x00 soupaire \x00 awesome \x00", EscapeTrailingBackslash("super \x00 soupaire \x00 awesome \x00"))
+	assert.Equal("super \x00 soupaire \x00 awesome \x00\x00\x00", EscapeTrailingBackslash("super \x00 soupaire \x00 awesome \x00\\\\"))
+}
+
 // TestFormatWithStyleWithoutTextBefore checks there are no errors of newline
 func TestFormatWithStyleWithoutTextBefore(t *testing.T) {
 	assert := assert.New(t)

@@ -29,15 +29,16 @@ func Escape(text string) string {
 
 // EscapeTrailingBackslash removes any trailing backslashes while keeping the length of the string
 func EscapeTrailingBackslash(text string) string {
-	newText := text
-	textLen := len(newText)
-	if textLen > 0 && newText[textLen-1:] == `\` {
-		newText = strings.TrimRight(text, `\`)
-		newText = strings.ReplaceAll(newText, "\x00", ``)
+	textLen := len(text)
+	if textLen > 0 && text[textLen-1:] == `\` {
+		newText := strings.TrimRight(text, `\`)
+		newText = strings.TrimRight(newText, "\x00")
 		newText = fmt.Sprintf("%s%s", newText, strings.Repeat("\x00", textLen-len(newText)))
+
+		return newText
 	}
 
-	return newText
+	return text
 }
 
 // FormatText find all tags and replace them with the correct escape sequences,
