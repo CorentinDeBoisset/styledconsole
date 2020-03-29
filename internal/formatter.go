@@ -52,7 +52,7 @@ func FormatText(text string, width int) string {
 	styleStack := style.OutputStyleStack{}
 
 	for _, tagIndexes := range tagMatches {
-		if tagIndexes[0] == 0 && text[len(text)-1:] == `\` {
+		if tagIndexes[0] == 0 && text[len(text)-1] == '\\' {
 			continue
 		}
 
@@ -66,10 +66,11 @@ func FormatText(text string, width int) string {
 
 		// Opening tag ?
 		tagName := ``
-		openingTag := text[tagIndexes[2]:tagIndexes[3]] != `/`
+		// openingTag := tagIndexes
+		openingTag := text[tagIndexes[2]:tagIndexes[3]][0] != '/'
 		if openingTag {
 			tagName = text[tagIndexes[2]:tagIndexes[3]]
-		} else if len(tagIndexes) >= 6 && tagIndexes[4] > 0 && tagIndexes[5] > 0 {
+		} else if tagIndexes[4] > 0 && tagIndexes[5] > 0 {
 			tagName = text[tagIndexes[4]:tagIndexes[5]]
 		}
 
