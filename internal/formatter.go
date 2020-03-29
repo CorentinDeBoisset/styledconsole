@@ -13,6 +13,7 @@ var (
 	tagRegexp       = regexp.MustCompile(`(?i)<([a-z][^<>]*|/([a-z][^<>]*)?)>`)
 	styleRegexp     = regexp.MustCompile(`([^=]+)=([^;]+)(;|$)`)
 	separatorRegexp = regexp.MustCompile(`([^,;]+)`)
+	lineEndRegexp   = regexp.MustCompile(` *(\r?\n)`)
 
 	// Some useful pre-defined styles
 	errorStyle    style.OutputStyle
@@ -39,13 +40,12 @@ func EscapeTrailingBackslash(text string) string {
 	return newText
 }
 
-// FormatAndWrap find all tags and replace them with the correct escape sequences,
+// FormatText find all tags and replace them with the correct escape sequences,
 // and adds newlines when necessary to ensure the output is fine in a given terminal
-func FormatAndWrap(text string, width int) string {
+func FormatText(text string, width int) string {
 	var offset int
 	var output string
-	currentLineLength := new(int)
-	*currentLineLength = 0
+	currentLineLength := 0
 
 	tagMatches := tagRegexp.FindAllSubmatchIndex([]byte(text), -1)
 	styleStack := style.OutputStyleStack{}
@@ -59,7 +59,7 @@ func FormatAndWrap(text string, width int) string {
 		output = fmt.Sprintf(
 			"%s%s",
 			output,
-			formatStringWithStyle(text[offset:tagIndexes[0]], &output, width, currentLineLength, styleStack),
+			formatStringWithStyle(text[offset:tagIndexes[0]], width, &currentLineLength, styleStack),
 		)
 		offset = tagIndexes[1]
 
@@ -82,7 +82,7 @@ func FormatAndWrap(text string, width int) string {
 				output = fmt.Sprintf(
 					"%s%s",
 					output,
-					formatStringWithStyle(text[tagIndexes[0]:tagIndexes[1]], &output, width, currentLineLength, styleStack),
+					formatStringWithStyle(text[tagIndexes[0]:tagIndexes[1]], width, &currentLineLength, styleStack),
 				)
 			} else if openingTag {
 				styleStack.Push(*style)
@@ -96,7 +96,7 @@ func FormatAndWrap(text string, width int) string {
 	output = fmt.Sprintf(
 		"%s%s",
 		output,
-		formatStringWithStyle(text[offset:], &output, width, currentLineLength, styleStack),
+		formatStringWithStyle(text[offset:], width, &currentLineLength, styleStack),
 	)
 
 	output = strings.ReplaceAll(output, "\x00", `\`)
@@ -148,7 +148,8 @@ func extractStyle(tagName string) *style.OutputStyle {
 }
 
 // This function is pretty bad, it should be much more clean and thoroughly tested
-func formatStringWithStyle(text string, current *string, width int, currentLineLength *int, stack style.OutputStyleStack) string {
+func formatStringWithStyle(text string, width int, currentLineLength *int, stack style.OutputStyleStack) string {
+	// First, handle invalid argument cases
 	if text == `` {
 		return ``
 	}
@@ -156,43 +157,68 @@ func formatStringWithStyle(text string, current *string, width int, currentLineL
 		return stack.GetCurrent().Apply(text)
 	}
 
-	if *currentLineLength == 0 {
-		text = strings.TrimLeft(text, " ")
+	// First cleanup text and replace line endings with \n, then split the lines
+	sourceLines := strings.Split(lineEndRegexp.ReplaceAllString(text, "\n"), "\n")
+
+	var splitLines []string
+
+	if *currentLineLength < 0 {
+		*currentLineLength = 0
+	} else if *currentLineLength > width {
+		splitLines = append(splitLines, "")
+		*currentLineLength = width
+	} else if *currentLineLength > 0 && *currentLineLength+len(sourceLines[0]) > width {
+		// If required, split the first line in two
+		splitLines = append(
+			splitLines,
+			getSubstring(sourceLines[0], 0, width-*currentLineLength),
+		)
+		sourceLines[0] = getSubstring(sourceLines[0], width-*currentLineLength, len(sourceLines[0]))
 	}
 
-	// The prefix is aimed at filling the current line with just enought characters
-	prefix := ``
-	if *currentLineLength > 0 {
-		prefix = fmt.Sprintf("%s\n", strings.TrimRight(getSubstring(text, 0, width-*currentLineLength), " "))
-		text = getSubstring(text, width-*currentLineLength, len(text))
+	// Then split all the other lines.
+	for _, line := range sourceLines {
+		nbSublines := len(line) / width
+		for j := 0; j <= nbSublines; j++ {
+			splitLines = append(splitLines, getSubstring(line, j*width, (j+1)*width))
+		}
 	}
 
-	// Then we cut the text into width-sized elements
-	lineSplitRegexp := regexp.MustCompile(fmt.Sprintf(`([^\n]{%d}) *`, width))
-	textHasNewLine := len(text) > 0 && text[len(text)-1:] == "\n"
-	text = fmt.Sprintf("%s%s", prefix, lineSplitRegexp.ReplaceAllString(text, "$1\n"))
-
-	// Merge all line endings at the end of the text together
+	// Remove all empty elements (=newLines) but one at the end of splitLines
+	textHasNewLine := false
+	for i := len(splitLines) - 1; i >= 0; i-- {
+		if len(splitLines[i]) > 0 {
+			splitLines = splitLines[0 : i+1]
+			break
+		}
+		textHasNewLine = true
+	}
 	if textHasNewLine {
-		text = fmt.Sprintf("%s\n", strings.TrimRight(text, "\n"))
+		splitLines = append(splitLines, "")
 	}
 
-	// If there is no started line, and the last item in the current string is not a \n, we add one before the new text
-	if *currentLineLength == 0 && len(*current) > 0 && (*current)[len(*current)-1:] != "\n" {
-		text = fmt.Sprintf("\n%s", text)
+	// Fill the lines with spaces
+	for i, line := range splitLines[:len(splitLines)-1] {
+		// Special case for the first line that has to takes into account *currentLineLength
+		if i == 0 && (len(line)+*currentLineLength) < width {
+			splitLines[i] = line + strings.Repeat(" ", width-len(line))
+		} else if i > 0 && len(line) < width {
+			splitLines[i] = line + strings.Repeat(" ", width-len(line))
+		}
 	}
 
-	lines := strings.Split(text, "\n")
-	for i, line := range lines {
+	for i, line := range splitLines {
 		// First we set currentLineLength
 		*currentLineLength = *currentLineLength + len(line)
-		if width <= *currentLineLength {
+		if *currentLineLength >= width {
 			*currentLineLength = 0
 		}
 
-		// Then we decorate each line
-		lines[i] = stack.GetCurrent().Apply(line)
+		if len(line) > 0 {
+			// Then we decorate each line
+			splitLines[i] = stack.GetCurrent().Apply(line)
+		}
 	}
 
-	return strings.Join(lines, "\n")
+	return strings.Join(splitLines, "\n")
 }

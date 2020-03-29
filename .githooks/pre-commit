@@ -25,7 +25,7 @@ PASS=true
 
 echo $STAGED_GO_FILES
 
-EDITED_DIRS=$(echo $STAGED_GO_FILES|xargs -I {} dirname {}|sort -u)
+EDITED_DIRS=$(printf "$STAGED_GO_FILES\n"|xargs -I {} dirname {}|uniq)
 
 for DIR in $EDITED_DIRS
 do
@@ -39,7 +39,7 @@ do
   fi
 
   # Run govet on the edited packages and check the exit status
-  go vet "./$DIR"
+  go vet "./$DIR" > /dev/null 2>&1
   if [[ $? != 0 ]]; then
     printf "\t\033[31mgo vet ./$DIR\033[0m \033[0;30m\033[41mFAILURE!\033[0m\n"
     PASS=false
