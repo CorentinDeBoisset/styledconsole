@@ -3,13 +3,12 @@
 Helper functions to pretty-print messages in a terminal.
 
 This project is heavily inspired on the awesome php helper [SymfonyStyle from SensioLabs](https://symfony.com/doc/current/console/style.html).
-(Sources can be found [here](https://github.com/symfony/console/blob/master/Style/SymfonyStyle.php))
 
 # Installation
 
 Simply run:
 
-    go get github.com/coreoas/styledconsole
+    go get github.com/corentindeboisset/styledconsole
 
 # Contrubuting
 
@@ -82,7 +81,7 @@ styledconsole.Title("My Title")
 ---------------------
 
 
-`Section(mysection string)`
+`Section(title string)`
 
 It displays the given string as the title of some command section.
 This is only needed in complex commands which want to better separate their contents:
@@ -93,7 +92,7 @@ styledconsole.Section("My section")
 
 ### Content methods
 
-`Text(sometext string)`
+`Text(content string)`
 
 It displays the given string or array of strings as regular text. This is useful to render help messages and instructions for the user running the command:
 
@@ -105,7 +104,7 @@ styledconsole.Text("Some awesome multi-line\ntext")
 ---------------------
 
 
-`Listing(myitems []string)`
+`Listing(items []string)`
 
 It displays an unordered list of elements passed as an array:
 
@@ -143,7 +142,7 @@ styledconsole.NewLines(10)
 
 ### Admonition Methods
 
-`Note(sometext string)`
+`Note(content string)`
 
 It displays the given string or array of strings as a highlighted admonition.
 Use this helper sparingly to avoid cluttering command's output:
@@ -156,7 +155,7 @@ styledconsole.Note("Note should be taken about this particular point")
 ---------------------
 
 
-`Caution(sometext string)`
+`Caution(content string)`
 
 Similar to the note() helper, but the contents are more prominently highlighted.
 The resulting contents resemble an error message, so you should avoid using this helper unless strictly necessary:
@@ -167,7 +166,7 @@ styledconsole.Caution("Wow, be careful about this or that")
 
 ### Progress Bar Methods
 
-`ProgressStart(nbSteps int)`
+`ProgressStart(totalSteps int)`
 
 It displays a progress bar with a number of steps equal to the argument passed to the method:
 
@@ -179,7 +178,7 @@ styledconsole.ProgressStart(10)
 ---------------------
 
 
-`ProgressAdvance(nbSteps int) int`
+`ProgressAdvance(stepCount int) int`
 
 It makes the progress bar advance the given number of steps.
 Returns the number of steps left:
@@ -202,9 +201,9 @@ styledconsole.ProgressFinish()
 
 ### User Input Methods
 
-`Ask(myquestion string, func(string) bool) string`
+`Ask(myquestion string, validator func(string) bool) string`
 
-`AskWithDefault(myquestion string, defaultAnswer string, func(string) bool) string`
+`AskWithDefault(myquestion string, defaultAnswer string, validator func(string) bool) string`
 
 It asks the user to provide some value, with or without a default value.
 The callback is used to validate the input:
@@ -225,7 +224,7 @@ styledconsole.AskWithDefault("Where is the sea?", "All around, this is an island
 ---------------------
 
 
-`AskHidden(myquestion string, func(string) bool) string`
+`AskHidden(question string, validator func(string) bool) string`
 
 It's very similar to the `ask(...)` method but the user's input will be hidden.
 Use it when asking for sensitive information:
@@ -240,9 +239,9 @@ res := styledconsole.AskHidden("What do you want to hide from your neighbors?", 
 ---------------------
 
 
-`Confirm(myquestion string) bool`
+`Confirm(question string) bool`
 
-`ConfirmWithDefault(myquestion string, defaultAnswer bool) bool`
+`ConfirmWithDefault(question string, defaultAnswer bool) bool`
 
 It asks a Yes/No question to the user and it only returns true or false:
 
@@ -259,22 +258,23 @@ styledconsole.ConfirmWithDefault("Is false as true to true while true can be fal
 ---------------------
 
 
-`Choice(myquestion, choices []string)`
+`Choice(question string, choices []string) int`
 
-`ChoiceWithDefault(myquestion, choices []string, defaultAnswer string)`
+`ChoiceWithDefault(question string, choices []string, defaultAnswer int) int`
 
-It asks a question whose answer is constrained to the given list of valid answers:
+It asks a question whose answer is constrained to the given list of valid answers.
+The value returned is the index of the selected answer:
 
 ```golang
 // Ask between some choices
 styledconsole.Choice("To be or not to be?", ["To be", "Not to be"])
 // Ask between some choices with a default, so we can hit <ENTER> and move on (...and go?)
-styledconsole.ChoiceWithDefault("Should I stay or should I go", ["Stay", "Umpf", "Go"], "Umpf")
+styledconsole.ChoiceWithDefault("Should I stay or should I go", ["Stay", "Go"], 1)
 ```
 
 ### Result methods
 
-`Success(sometext string)`
+`Success(content string)`
 
 It displays the given string or array of strings highlighted as a successful message (with a green background and the [OK] label).
 It's meant to be used once to display the final result of executing the given command, but you can use it repeatedly during the execution of the command:
@@ -287,7 +287,7 @@ styledconsole.Success("The atomic bomb model was a dud, you're safe.")
 ---------------------
 
 
-`Warning(sometext string)`
+`Warning(content string)`
 
 It displays the given string or array of strings highlighted as a warning message (with a red background and the [WARNING] label).
 It's meant to be used once to display the final result of executing the given command, but you can use it repeatedly during the execution of the command:
@@ -300,7 +300,7 @@ styledconsole.Warning("Your backpack just started ticking.")
 ---------------------
 
 
-`Error(sometext string)`
+`Error(content string)`
 
 It displays the given string or array of strings highlighted as an error message (with a red background and the [ERROR] label).
 It's meant to be used once to display the final result of executing the given command, but you can use it repeatedly during the execution of the command:

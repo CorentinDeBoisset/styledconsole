@@ -91,3 +91,26 @@ func (s OutputStyle) Apply(text string) string {
 
 	return fmt.Sprintf("\033[%sm%s\033[%sm", strings.Join(setCodes, ";"), text, strings.Join(unsetCodes, ";"))
 }
+
+// MergeBase merges a base style on another style
+func (s OutputStyle) MergeBase(baseStyle OutputStyle) {
+	// Apply the baseStyle's foreground and background if they are not defined on the current style
+	if len(s.Foreground) == 0 && len(baseStyle.Foreground) > 0 {
+		s.Foreground = baseStyle.Foreground
+	}
+	if len(s.Background) == 0 && len(baseStyle.Background) > 0 {
+		s.Background = baseStyle.Background
+	}
+	// Same with the options
+	for _, baseOption := range baseStyle.Options {
+		optionAlreadySet := false
+		for _, styleOption := range s.Options {
+			if baseOption == styleOption {
+				optionAlreadySet = true
+			}
+		}
+		if !optionAlreadySet {
+			s.Options = append(s.Options, baseOption)
+		}
+	}
+}

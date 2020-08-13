@@ -1,45 +1,104 @@
 package main
 
-// "github.com/coreoas/styledconsole/internal"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/corentindeboisset/styledconsole/internal"
+)
 
 // Section function
-func Section() {
+func Section(title string) {
+	titleLen := len(title)
+	underline := strings.Repeat("=", titleLen)
+
+	internal.Write(fmt.Sprintf("<fg=yellow>%s\n%s</>", title, underline), true)
 }
 
 // Text function
-func Text() {
+func Text(content string) {
+	internal.Write(content, true)
 }
 
 // Listing function
-func Listing() {
+func Listing(items []string) {
+	for _, item := range items {
+		internal.Write(fmt.Sprintf(" * %s", item), true)
+	}
 }
 
-// Table function
-func Table() {
+// Table pretty-prints a table with headers. It does not support multiline cells or sytling
+func Table(headers []string, rows [][]string) {
+	// First we have to determinate the width of every column
+	var columnWidths []int
+	for _, headerItem := range headers {
+		columnWidths = append(columnWidths, len(headerItem))
+	}
+	for _, row := range rows {
+		for columnNb, rowItem := range row {
+			if columnNb < len(columnWidths) {
+				if columnWidths[columnNb] < len(rowItem) {
+					columnWidths[columnNb] = len(rowItem)
+				}
+			} else {
+				columnWidths = append(columnWidths, len(rowItem))
+			}
+		}
+	}
+
+	// Prepare the row spearator
+	sectionSeparator := "+"
+	for _, width := range columnWidths {
+		sectionSeparator += fmt.Sprintf("%s+", strings.Repeat("-", width+2))
+	}
+
+	var lines []string
+	lines = append(lines, sectionSeparator)
+	rowToPrint := "|"
+	for columnNb, headerItem := range headers {
+		rowToPrint += fmt.Sprintf(" %s%s |", headerItem, strings.Repeat(" ", columnWidths[columnNb]-len(headerItem)))
+	}
+	lines = append(lines, rowToPrint)
+	lines = append(lines, sectionSeparator)
+
+	for _, row := range rows {
+		rowToPrint = "|"
+		for columnNb, rowItem := range row {
+			rowToPrint += fmt.Sprintf(" %s%s |", rowItem, strings.Repeat(" ", columnWidths[columnNb]-len(rowItem)))
+		}
+		lines = append(lines, rowToPrint)
+	}
+	lines = append(lines, sectionSeparator)
+
+	fmt.Printf("%s\n", strings.Join(lines, "\n"))
 }
 
 // NewLine function
 func NewLine() {
+	internal.Write("", true)
 }
 
 // NewLines function
-func NewLines() {
+func NewLines(newLineCount int) {
+	if newLineCount > 0 {
+		internal.Write(strings.Repeat("\n", newLineCount-1), true)
+	}
 }
 
 // Note function
-func Note() {
+func Note(content string) {
 }
 
 // Caution function
-func Caution() {
+func Caution(content string) {
 }
 
 // ProgressStart function
-func ProgressStart() {
+func ProgressStart(totalSteps int) {
 }
 
 // ProgressAdvance function
-func ProgressAdvance() {
+func ProgressAdvance(stepCount int) {
 }
 
 // ProgressFinish function
@@ -47,41 +106,48 @@ func ProgressFinish() {
 }
 
 // Ask function
-func Ask() {
+func Ask(question string, validator func(string) bool) string {
+	return ""
 }
 
-// AskWithfuncault function
-func AskWithfuncault() {
+// AskWithDefault function
+func AskWithDefault(question string, defaultAnswer string, validator func(string) bool) string {
+	return ""
 }
 
 // AskHidden function
-func AskHidden() {
+func AskHidden(question string, validator func(string) bool) string {
+	return ""
 }
 
 // Confirm function
-func Confirm() {
+func Confirm(question string) bool {
+	return true
 }
 
-// ConfirmWithfuncault function
-func ConfirmWithfuncault() {
+// ConfirmWithDefault function
+func ConfirmWithDefault(question string, defaultAnswer bool) bool {
+	return true
 }
 
 // Choice function
-func Choice() {
+func Choice(question string, choices []string) int {
+	return 0
 }
 
-// ChoiceWithfuncault function
-func ChoiceWithfuncault() {
+// ChoiceWithDefault function
+func ChoiceWithDefault(question string, choices []string, defaultAnswer int) int {
+	return 0
 }
 
 // Success function
-func Success() {
+func Success(content string) {
 }
 
 // Warning function
-func Warning() {
+func Warning(content string) {
 }
 
 // Error function
-func Error() {
+func Error(content string) {
 }

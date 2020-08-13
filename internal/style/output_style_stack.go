@@ -2,11 +2,16 @@ package style
 
 // OutputStyleStack is a wrapper around a list of styles to have a first-in-last-out list behavior
 type OutputStyleStack struct {
-	styles []OutputStyle
+	BaseStyle *OutputStyle
+	styles    []OutputStyle
 }
 
 // Push adds a new style to the stack
 func (s *OutputStyleStack) Push(newStyle OutputStyle) {
+	if s.BaseStyle != nil {
+		newStyle.MergeBase(*s.BaseStyle)
+	}
+
 	s.styles = append(s.styles, newStyle)
 }
 
@@ -30,6 +35,10 @@ func (s *OutputStyleStack) PopCurrent() {
 // GetCurrent returns the latest style in the stack
 func (s *OutputStyleStack) GetCurrent() OutputStyle {
 	if len(s.styles) == 0 {
+		if s.BaseStyle != nil {
+			return *s.BaseStyle
+		}
+
 		return OutputStyle{}
 	}
 

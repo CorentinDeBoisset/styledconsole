@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/coreoas/styledconsole/internal/style"
+	"github.com/corentindeboisset/styledconsole/internal/style"
 )
 
 var (
@@ -43,13 +43,20 @@ func EscapeTrailingBackslash(text string) string {
 
 // FormatText find all tags and replace them with the correct escape sequences,
 // and adds newlines when necessary to ensure the output is fine in a given terminal
-func FormatText(text string, width int) string {
+func FormatText(text string, width int, baseStyle string) []string {
 	var offset int
-	var output string
+	var styleStack style.OutputStyleStack
+
+	output := []string{""}
 	currentLineLength := 0
 
 	tagMatches := tagRegexp.FindAllSubmatchIndex([]byte(text), -1)
-	styleStack := style.OutputStyleStack{}
+	if len(baseStyle) > 0 {
+		extractedBaseStyle := extractStyle(baseStyle)
+		styleStack = style.OutputStyleStack{BaseStyle: extractedBaseStyle}
+	} else {
+		styleStack = style.OutputStyleStack{}
+	}
 
 	for _, tagIndexes := range tagMatches {
 		if tagIndexes[0] == 0 && text[len(text)-1] == '\\' {
@@ -57,11 +64,7 @@ func FormatText(text string, width int) string {
 		}
 
 		// Write text up to the tag
-		output = fmt.Sprintf(
-			"%s%s",
-			output,
-			formatStringWithStyle(text[offset:tagIndexes[0]], width, &currentLineLength, styleStack),
-		)
+		addStringWithStyle(text[offset:tagIndexes[0]], width, &output, &currentLineLength, styleStack)
 		offset = tagIndexes[1]
 
 		// Opening tag ?
@@ -81,11 +84,7 @@ func FormatText(text string, width int) string {
 			style := extractStyle(tagName)
 			if style == nil {
 				// We detected a tag incorrectly, we write the text in the regex
-				output = fmt.Sprintf(
-					"%s%s",
-					output,
-					formatStringWithStyle(text[tagIndexes[0]:tagIndexes[1]], width, &currentLineLength, styleStack),
-				)
+				addStringWithStyle(text[tagIndexes[0]:tagIndexes[1]], width, &output, &currentLineLength, styleStack)
 			} else if openingTag {
 				styleStack.Push(*style)
 			} else {
@@ -95,14 +94,12 @@ func FormatText(text string, width int) string {
 	}
 
 	// Write the end of the text
-	output = fmt.Sprintf(
-		"%s%s",
-		output,
-		formatStringWithStyle(text[offset:], width, &currentLineLength, styleStack),
-	)
+	addStringWithStyle(text[offset:], width, &output, &currentLineLength, styleStack)
 
-	output = strings.ReplaceAll(output, "\x00", `\`)
-	output = strings.ReplaceAll(output, `\<`, `<`)
+	for i, line := range output {
+		output[i] = strings.ReplaceAll(line, "\x00", `\`)
+		output[i] = strings.ReplaceAll(line, `\<`, `<`)
+	}
 
 	return output
 }
@@ -150,13 +147,10 @@ func extractStyle(tagName string) *style.OutputStyle {
 }
 
 // This function is pretty bad, it should be much more clean and thoroughly tested
-func formatStringWithStyle(text string, width int, currentLineLength *int, stack style.OutputStyleStack) string {
+func addStringWithStyle(text string, width int, output *[]string, lastLineLength *int, stack style.OutputStyleStack) {
 	// First, handle invalid argument cases
-	if text == `` {
-		return ``
-	}
-	if width == 0 || currentLineLength == nil {
-		return stack.GetCurrent().Apply(text)
+	if text == `` || width == 0 || output == nil {
+		return
 	}
 
 	// First cleanup text and replace line endings with \n, then split the lines
@@ -164,18 +158,23 @@ func formatStringWithStyle(text string, width int, currentLineLength *int, stack
 
 	var splitLines []string
 
-	if *currentLineLength < 0 {
-		*currentLineLength = 0
-	} else if *currentLineLength > width {
+	if *lastLineLength < 0 {
+		// The lastLineLength was invalid, we try to infer it from *output
+		// It's not optimal because the elements of output contain escape codes
+		*lastLineLength = 0
+		if len(*output) > 0 {
+			*lastLineLength = len((*output)[len(*output)-1])
+		}
+	} else if *lastLineLength > width {
 		splitLines = append(splitLines, "")
-		*currentLineLength = width
-	} else if *currentLineLength > 0 && *currentLineLength+len(sourceLines[0]) > width {
+		*lastLineLength = width
+	} else if *lastLineLength > 0 && *lastLineLength+len(sourceLines[0]) > width {
 		// If required, split the first line in two
 		splitLines = append(
 			splitLines,
-			getSubstring(sourceLines[0], 0, width-*currentLineLength),
+			getSubstring(sourceLines[0], 0, width-*lastLineLength),
 		)
-		sourceLines[0] = getSubstring(sourceLines[0], width-*currentLineLength, len(sourceLines[0]))
+		sourceLines[0] = getSubstring(sourceLines[0], width-*lastLineLength, len(sourceLines[0]))
 	}
 
 	// Then split all the other lines.
@@ -201,8 +200,8 @@ func formatStringWithStyle(text string, width int, currentLineLength *int, stack
 
 	// Fill the lines with spaces
 	for i, line := range splitLines[:len(splitLines)-1] {
-		// Special case for the first line that has to takes into account *currentLineLength
-		if i == 0 && (len(line)+*currentLineLength) < width {
+		if i == 0 && (len(line)+*lastLineLength) < width {
+			// Special case for the first line that has to takes into account currentLineLength
 			splitLines[i] = line + strings.Repeat(" ", width-len(line))
 		} else if i > 0 && len(line) < width {
 			splitLines[i] = line + strings.Repeat(" ", width-len(line))
@@ -210,17 +209,16 @@ func formatStringWithStyle(text string, width int, currentLineLength *int, stack
 	}
 
 	for i, line := range splitLines {
-		// First we set currentLineLength
-		*currentLineLength = *currentLineLength + len(line)
-		if *currentLineLength >= width {
-			*currentLineLength = 0
-		}
-
-		if len(line) > 0 {
+		if i == 0 && len(*output) > 0 {
+			(*output)[len(*output)-1] += stack.GetCurrent().Apply(line)
+			*lastLineLength += len(line)
+		} else if len(line) > 0 {
 			// Then we decorate each line
-			splitLines[i] = stack.GetCurrent().Apply(line)
+			*output = append(*output, stack.GetCurrent().Apply(line))
+			*lastLineLength = len(line)
+		} else {
+			*output = append(*output, "")
+			*lastLineLength = 0
 		}
 	}
-
-	return strings.Join(splitLines, "\n")
 }

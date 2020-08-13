@@ -1,4 +1,4 @@
-module github.com/coreoas/styledconsole
+module github.com/corentindeboisset/styledconsole
 
 go 1.13
 

@@ -9,7 +9,7 @@ const defaultHeight = 60
 const maxLineLength = 120
 
 // GetWinsize return the size (width, height) of the current terminal window
-func GetWinsize() (uint16, uint16) {
+func GetWinsize() (int, int) {
 	ws, err := unix.IoctlGetWinsize(1, unix.TIOCGWINSZ) // file descriptor 1 is stdout
 
 	if err != nil {
@@ -21,5 +21,5 @@ func GetWinsize() (uint16, uint16) {
 		width = maxLineLength
 	}
 
-	return width, height
+	return int(width), int(height)
 }
