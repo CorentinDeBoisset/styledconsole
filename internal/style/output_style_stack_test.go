@@ -48,3 +48,15 @@ func TestPopStyles(t *testing.T) {
 	stack.PopCurrent()
 	assert.Equal(OutputStyle{}, stack.GetCurrent())
 }
+
+// TestBaseStyle checks we can define a base style that will be merged with the stack styles
+func TestBaseStyle(t *testing.T) {
+	assert := assert.New(t)
+	baseStyle := OutputStyle{Background: "green", Foreground: "blue"}
+	stack := OutputStyleStack{BaseStyle: &baseStyle}
+	stack.Push(OutputStyle{Foreground: "red"})
+
+	assert.Equal(OutputStyle{Background: "green", Foreground: "red"}, stack.GetCurrent())
+	stack.PopCurrent()
+	assert.Equal(OutputStyle{Background: "green", Foreground: "blue"}, stack.GetCurrent())
+}

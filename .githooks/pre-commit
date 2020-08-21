@@ -1,79 +1,38 @@
 #!/bin/bash
 
-STAGED_GO_FILES=$(git diff --cached --name-only | grep "\.go$")
+REPO_DIR=$(git rev-parse --show-toplevel)
 
-if [ -z "$STAGED_GO_FILES" ]; then
-  exit 0
-fi
-
-GOLINT=$GOPATH/bin/golint
-GOIMPORTS=$GOPATH/bin/goimports
+GOLANGCILINT="$(which golangci-lint)"
 
 # Check for golint
-if [[ ! -x "$GOLINT" ]]; then
-  printf "\t\033[41mPlease install golint\033[0m (go get -u golang.org/x/lint/golint)"
-  exit 1
-fi
-
-# Check for goimports
-if [[ ! -x "$GOIMPORTS" ]]; then
-  printf "\t\033[41mPlease install goimports\033[0m (go get golang.org/x/tools/cmd/goimports)"
+if [[ ! -x "$GOLANGCILINT" ]]; then
+  printf "\t\033[41mPlease install golangci-lint\033[0m"
   exit 1
 fi
 
 PASS=true
 
-echo $STAGED_GO_FILES
+$GOLANGCILINT run "$REPO_DIR/..." > /dev/null 2>&1
+if [[ $? == 1 ]]; then
+  printf "\tgolangci-lint run ./...  \033[0;30m\033[41mFAILURE!\033[0m\n"
+  PASS=false
+else
+  printf "\tgolangci-lint run ./...  \033[0m\033[0;30m\033[42mpass\033[0m\n"
+fi
 
-EDITED_DIRS=$(printf "$STAGED_GO_FILES\n"|xargs -I {} dirname {}|uniq)
-
-for DIR in $EDITED_DIRS
-do
-  # Run golint on the edited packages and check the exit status
-  $GOLINT "-set_exit_status" $DIR
-  if [[ $? == 1 ]]; then
-    printf "\t\033[31mgolint ./$DIR\033[0m \033[0;30m\033[41mFAILURE!\033[0m\n"
-    PASS=false
-  else
-    printf "\t\033[32mgolint ./$DIR\033[0m \033[0;30m\033[42mpass\033[0m\n"
-  fi
-
-  # Run govet on the edited packages and check the exit status
-  go vet "./$DIR" > /dev/null 2>&1
-  if [[ $? != 0 ]]; then
-    printf "\t\033[31mgo vet ./$DIR\033[0m \033[0;30m\033[41mFAILURE!\033[0m\n"
-    PASS=false
-  else
-    printf "\t\033[32mgo vet ./$DIR\033[0m \033[0;30m\033[42mpass\033[0m\n"
-  fi
-
-  # Run go test on the edited packages and check the exit status
-  go test "./$DIR" > /dev/null 2>&1
-  if [[ $? != 0 ]]; then
-    printf "\t\033[31mgo test ./$DIR\033[0m \033[0;30m\033[41mFAILURE!\033[0m\n"
-    PASS=false
-  else
-    printf "\t\033[32mgo test ./$DIR\033[0m \033[0;30m\033[42mpass\033[0m\n"
-  fi
-done
-
-for FILE in $STAGED_GO_FILES
-do
-  # Run goimports on the staged file
-  unformatted=$($GOIMPORTS -l $FILE)
-  if [ -n "$unformatted" ]; then
-    printf "\t\033[31mgoimports $FILE\033[0m \033[0;30m\033[41mFAILURE!\033[0m\n"
-    PASS=false
-  else
-    printf "\t\033[32mgoimports $FILE\033[0m \033[0;30m\033[42mpass!\033[0m\n"
-  fi
-done
+go test "$REPO_DIR/..." > /dev/null 2>&1
+if [[ $? != 0 ]]; then
+  printf "\tgo test ./...            \033[0m\033[0;30m\033[41mFAILURE!\033[0m\n"
+  PASS=false
+else
+  printf "\tgo test ./...            \033[0m\033[0;30m\033[42mpass\033[0m\n"
+fi
 
 if ! $PASS; then
-  printf "\033[0;30m\033[41mCOMMIT FAILED\033[0m\n"
+  printf "\n\033[0;30m\033[41mCOMMIT FAILED\033[0m\n"
   exit 1
 else
-  printf "\033[0;30m\033[42mCOMMIT SUCCEEDED\033[0m\n"
+  printf "\n\033[0;30m\033[42mCOMMIT SUCCEEDED\033[0m\n"
 fi
 
 exit 0

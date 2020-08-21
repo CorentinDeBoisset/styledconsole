@@ -14,12 +14,6 @@ var (
 	styleRegexp     = regexp.MustCompile(`([^=]+)=([^;]+)(;|$)`)
 	separatorRegexp = regexp.MustCompile(`([^,;]+)`)
 	lineEndRegexp   = regexp.MustCompile(` *(\r?\n)`)
-
-	// Some useful pre-defined styles
-	errorStyle    style.OutputStyle
-	infoStyle     style.OutputStyle
-	commentStyle  style.OutputStyle
-	questionStyle style.OutputStyle
 )
 
 // Escape will prepend all '<' with a backslash
@@ -109,7 +103,7 @@ func getSubstring(s string, start int, end int) string {
 		return ``
 	}
 	if end > len(s) {
-		return s[start:len(s)]
+		return s[start:]
 	}
 
 	return s[start:end]

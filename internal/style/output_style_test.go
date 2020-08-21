@@ -32,3 +32,30 @@ func TestApplyInvalidStyle(t *testing.T) {
 		mystyle.Apply("This is a text."),
 	)
 }
+
+// TestMergeStyles checks we can merge two styles together
+func TestMergeStyles(t *testing.T) {
+	assert := assert.New(t)
+	firstStyle := OutputStyle{Foreground: "blue", Background: "blue", Options: []string{"bold", "underscore", "blink"}}
+	secondStyle := OutputStyle{Foreground: "red", Background: "red", Options: []string{"reverse", "conceal", "underscore"}}
+
+	secondStyle.MergeBase(firstStyle)
+	assert.Equal(
+		OutputStyle{Foreground: "red", Background: "red", Options: []string{"reverse", "conceal", "underscore", "bold", "blink"}},
+		secondStyle,
+	)
+
+	fgStyle := OutputStyle{Foreground: "green"}
+	fgStyle.MergeBase(firstStyle)
+	assert.Equal(
+		OutputStyle{Foreground: "green", Background: "blue", Options: []string{"bold", "underscore", "blink"}},
+		fgStyle,
+	)
+
+	bgStyle := OutputStyle{Background: "green"}
+	bgStyle.MergeBase(firstStyle)
+	assert.Equal(
+		OutputStyle{Foreground: "blue", Background: "green", Options: []string{"bold", "underscore", "blink"}},
+		bgStyle,
+	)
+}

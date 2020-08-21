@@ -93,7 +93,7 @@ func (s OutputStyle) Apply(text string) string {
 }
 
 // MergeBase merges a base style on another style
-func (s OutputStyle) MergeBase(baseStyle OutputStyle) {
+func (s *OutputStyle) MergeBase(baseStyle OutputStyle) {
 	// Apply the baseStyle's foreground and background if they are not defined on the current style
 	if len(s.Foreground) == 0 && len(baseStyle.Foreground) > 0 {
 		s.Foreground = baseStyle.Foreground

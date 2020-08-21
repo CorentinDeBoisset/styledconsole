@@ -14,9 +14,7 @@ Simply run:
 
 If you want to open an MR, be sure to run the tests with:
 
-    find . -type f -regex ".*\.go$" | xargs goimports -l
-    golint ./...
-    go vet ./...
+    golangci-lint run
     go test ./...
 
 If you want to run all these tests automatically before every commit, add the custom git-hooks with:

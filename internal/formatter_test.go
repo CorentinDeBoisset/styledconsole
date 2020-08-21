@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/corentindeboisset/styledconsole/internal/style"
@@ -115,8 +114,8 @@ func TestFormatWithStyleWithoutTextBefore(t *testing.T) {
 	assert.Equal([]string{"iiiabc"}, output)
 }
 
-// TestFormatText checks we can render a full text using style tags
-func TestFormatText(t *testing.T) {
+// TestFormatTextWithoutDefault checks we can render a full text using style tags
+func TestFormatTextWithoutDefault(t *testing.T) {
 	assert := assert.New(t)
 	width := 20
 
@@ -151,11 +150,32 @@ func TestFormatText(t *testing.T) {
 	)
 
 	// Test edge-cases
-	fmt.Print("now is now\n\n\n.\n")
 	assert.Equal([]string{""}, FormatText("", width, ""))
 	assert.Equal([]string{""}, FormatText("<fg=red></>", width, ""))
 	assert.Equal([]string{"qsdf"}, FormatText("<fg=wrong>qsdf</>", width, ""))
 	assert.Equal([]string{"<toto=titi>qsdf"}, FormatText("<toto=titi>qsdf</fg=blue>", width, ""))
 	assert.Equal([]string{"\x1b[34mtesttest\x1b[39m"}, FormatText("<fg=blue>testtest", width, ""))
 	assert.Equal([]string{"testtest"}, FormatText("testt</fg=blue>est", width, ""))
+}
+
+// TestFormatTextWithDefault checks that we can format text with a default style
+func TestFormatTextWithDefault(t *testing.T) {
+	assert := assert.New(t)
+	width := 20
+
+	assert.Equal(
+		[]string{"\x1b[31;42mawesome text\x1b[39;49m"},
+		FormatText("<fg=red>awesome text</>", width, "bg=green;fg=blue"),
+	)
+	assert.Equal(
+		[]string{"\x1b[34;42mawesome \x1b[39;49m\x1b[31;42mtext\x1b[39;49m"},
+		FormatText("awesome <fg=red>text</>", width, "bg=green;fg=blue"),
+	)
+	assert.Equal(
+		[]string{
+			"\x1b[34;42mawesome \x1b[39;49m\x1b[31;42mtext\x1b[39;49m\x1b[34;42m                    \x1b[39;49m",
+			"\x1b[34;42mwith \x1b[39;49m\x1b[33;42mmultiple lines\x1b[39;49m",
+		},
+		FormatText("awesome <fg=red>text</>\nwith <fg=yellow>multiple lines</>", width, "bg=green;fg=blue"),
+	)
 }
