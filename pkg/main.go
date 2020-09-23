@@ -143,12 +143,15 @@ func ChoiceWithDefault(question string, choices []string, defaultAnswer int) int
 
 // Success function
 func Success(content string) {
+	internal.WriteBlock(fmt.Sprintf("Error:\n%s", content), "  ", "bg=green;fg=white", true)
 }
 
 // Warning function
 func Warning(content string) {
+	internal.WriteBlock(fmt.Sprintf("Error:\n%s", content), "  ", "bg=red;fg=white", true)
 }
 
 // Error function
 func Error(content string) {
+	internal.WriteBlock(fmt.Sprintf("Error:\n%s", content), "  ", "bg=red;fg=white", true)
 }
