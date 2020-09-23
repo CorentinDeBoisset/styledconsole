@@ -1,5 +1,5 @@
 // nolint:deadcode,unused
-package main
+package styledconsole
 
 import (
 	"fmt"
