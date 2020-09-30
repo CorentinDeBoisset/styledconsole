@@ -4,7 +4,7 @@ package terminal
 
 import "golang.org/x/sys/unix"
 
-const maxLineLength = 120
+const maxLineLength = 250
 
 // GetWinsize return the size (width, height) of the current terminal window
 func GetWinsize() (int, int) {

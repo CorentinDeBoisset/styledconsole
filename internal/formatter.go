@@ -9,11 +9,9 @@ import (
 )
 
 var (
-	escapeRegexp    = regexp.MustCompile(`[^\\]?<`)
-	tagRegexp       = regexp.MustCompile(`(?i)<([a-z][^<>]*|/([a-z][^<>]*)?)>`)
-	styleRegexp     = regexp.MustCompile(`([^=]+)=([^;]+)(;|$)`)
-	separatorRegexp = regexp.MustCompile(`([^,;]+)`)
-	lineEndRegexp   = regexp.MustCompile(` *(\r?\n)`)
+	escapeRegexp  = regexp.MustCompile(`[^\\]?<`)
+	tagRegexp     = regexp.MustCompile(`(?i)<([a-z][^<>]*|/([a-z][^<>]*)?)>`)
+	lineEndRegexp = regexp.MustCompile(` *(\r?\n)`)
 )
 
 // Escape will prepend all '<' with a backslash
@@ -37,7 +35,7 @@ func EscapeTrailingBackslash(text string) string {
 
 // FormatText find all tags and replace them with the correct escape sequences,
 // and adds newlines when necessary to ensure the output is fine in a given terminal
-func FormatText(text string, width int, baseStyle string) []string {
+func FormatText(text string, width int, baseStyle *style.OutputStyle) []string {
 	var offset int
 	var styleStack style.OutputStyleStack
 
@@ -45,9 +43,8 @@ func FormatText(text string, width int, baseStyle string) []string {
 	currentLineLength := 0
 
 	tagMatches := tagRegexp.FindAllSubmatchIndex([]byte(text), -1)
-	if len(baseStyle) > 0 {
-		extractedBaseStyle := extractStyle(baseStyle)
-		styleStack = style.OutputStyleStack{BaseStyle: extractedBaseStyle}
+	if baseStyle != nil {
+		styleStack = style.OutputStyleStack{BaseStyle: baseStyle}
 	} else {
 		styleStack = style.OutputStyleStack{}
 	}
@@ -75,7 +72,7 @@ func FormatText(text string, width int, baseStyle string) []string {
 			// tag is </>
 			styleStack.PopCurrent()
 		} else {
-			style := extractStyle(tagName)
+			style := style.NewOutputStyle(tagName)
 			if style == nil {
 				// We detected a tag incorrectly, we write the text in the regex
 				addStringWithStyle(text[tagIndexes[0]:tagIndexes[1]], width, &output, &currentLineLength, styleStack)
@@ -107,37 +104,6 @@ func getSubstring(s string, start int, end int) string {
 	}
 
 	return s[start:end]
-}
-
-func extractStyle(tagName string) *style.OutputStyle {
-	styleMatches := styleRegexp.FindAllSubmatchIndex([]byte(tagName), -1)
-	if len(styleMatches) == 0 {
-		return nil
-	}
-
-	extractedStyle := new(style.OutputStyle)
-	for _, attrMatches := range styleMatches {
-		styleName := strings.ToLower(tagName[attrMatches[2]:attrMatches[3]])
-		styleValue := tagName[attrMatches[4]:attrMatches[5]]
-
-		if `fg` == styleName {
-			extractedStyle.Foreground = strings.ToLower(styleValue)
-		} else if `bg` == styleName {
-			extractedStyle.Background = strings.ToLower(styleValue)
-		} else if `href` == styleName {
-			extractedStyle.Href = styleValue
-		} else if `options` == styleName {
-			separatorMatches := separatorRegexp.FindAllSubmatchIndex([]byte(strings.ToLower(styleValue)), -1)
-			for _, separatorIndexes := range separatorMatches {
-				extractedStyle.Options = append(extractedStyle.Options, styleValue[separatorIndexes[2]:separatorIndexes[3]])
-			}
-		} else {
-			// If there is an unknown attribute, the whole style is voided
-			return nil
-		}
-	}
-
-	return extractedStyle
 }
 
 // This function is pretty bad, it should be much more clean and thoroughly tested

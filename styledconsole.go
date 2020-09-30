@@ -1,5 +1,5 @@
 // nolint:deadcode,unused
-package styledconsole
+package main
 
 import (
 	"fmt"
@@ -148,7 +148,7 @@ func Success(content string) {
 
 // Warning function
 func Warning(content string) {
-	internal.WriteBlock(fmt.Sprintf("Error:\n%s", content), "  ", "fg=yellow", true)
+	internal.WriteBlock(fmt.Sprintf("Error:\n%s", content), "# ", "fg=yellow", true)
 }
 
 // Error function

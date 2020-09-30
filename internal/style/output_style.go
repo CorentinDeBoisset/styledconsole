@@ -3,6 +3,7 @@ package style
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -40,6 +41,8 @@ var (
 		"reverse":    [2]string{"7", "27"},
 		"conceal":    [2]string{"8", "28"},
 	}
+	styleRegexp     = regexp.MustCompile(`([^=]+)=([^;]+)(;|$)`)
+	separatorRegexp = regexp.MustCompile(`([^,;]+)`)
 )
 
 // OutputStyle contains the required data to print special text on the console
@@ -50,6 +53,37 @@ type OutputStyle struct {
 	Href                 string
 	HandleHrefGracefully *bool
 	Options              []string
+}
+
+func NewOutputStyle(styleString string) *OutputStyle {
+	styleMatches := styleRegexp.FindAllSubmatchIndex([]byte(styleString), -1)
+	if len(styleMatches) == 0 {
+		return nil
+	}
+
+	extractedStyle := new(OutputStyle)
+	for _, attrMatches := range styleMatches {
+		styleName := strings.ToLower(styleString[attrMatches[2]:attrMatches[3]])
+		styleValue := styleString[attrMatches[4]:attrMatches[5]]
+
+		if `fg` == styleName {
+			extractedStyle.Foreground = strings.ToLower(styleValue)
+		} else if `bg` == styleName {
+			extractedStyle.Background = strings.ToLower(styleValue)
+		} else if `href` == styleName {
+			extractedStyle.Href = styleValue
+		} else if `options` == styleName {
+			separatorMatches := separatorRegexp.FindAllSubmatchIndex([]byte(strings.ToLower(styleValue)), -1)
+			for _, separatorIndexes := range separatorMatches {
+				extractedStyle.Options = append(extractedStyle.Options, styleValue[separatorIndexes[2]:separatorIndexes[3]])
+			}
+		} else {
+			// If there is an unknown attribute, the whole style is voided
+			return nil
+		}
+	}
+
+	return extractedStyle
 }
 
 // Apply surrounds a given string with the adequate escape sequence

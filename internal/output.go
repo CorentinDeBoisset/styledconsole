@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/corentindeboisset/styledconsole/internal/style"
 	"github.com/corentindeboisset/styledconsole/internal/terminal"
 )
 
@@ -12,13 +13,25 @@ func WriteBlock(message string, padding string, baseStyle string, newLine bool) 
 	width, _ := terminal.GetWinsize()
 
 	widthWithoutPadding := width - len(padding)
+	extractedBaseStyle := style.NewOutputStyle(baseStyle)
 
-	formattedLines := FormatText(message, widthWithoutPadding, baseStyle)
-	for _, line := range formattedLines {
-		fmt.Printf("%s%s\n", padding, line)
+	// We ensure there is a last line at the end to have the background everywhere
+	if message[len(message)-1:] != "\n" {
+		message = message + "\n"
 	}
+
+	formattedLines := FormatText(message, widthWithoutPadding, extractedBaseStyle)
+	emptyLine := extractedBaseStyle.Apply(padding + strings.Repeat(" ", widthWithoutPadding))
+
+	// However, we remove the last empty line, to blend with the block
+	fmt.Printf("%s\n", emptyLine)
+	for _, line := range formattedLines[0 : len(formattedLines)-1] {
+		fmt.Printf("%s%s\n", extractedBaseStyle.Apply(padding), line)
+	}
+	fmt.Printf("%s\n", emptyLine)
+
 	if newLine {
-		fmt.Print("\n")
+		fmt.Printf("\n")
 	}
 }
 
@@ -26,7 +39,7 @@ func WriteBlock(message string, padding string, baseStyle string, newLine bool) 
 func Write(message string, newLine bool) {
 	width, _ := terminal.GetWinsize()
 
-	currentLines := FormatText(message, width, "")
+	currentLines := FormatText(message, width, nil)
 	fmt.Print(strings.Join(currentLines, "\n"))
 	if newLine {
 		fmt.Print("\n")

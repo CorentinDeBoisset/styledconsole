@@ -6,6 +6,23 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestNew checks we can build a style from a string
+func TestNew(t *testing.T) {
+	assert := assert.New(t)
+
+	// Test a simple, valid style
+	assert.Equal(&OutputStyle{Foreground: "red", Background: "green"}, NewOutputStyle("bg=green;fg=red"))
+
+	// Test a style with options and href
+	assert.Equal(
+		&OutputStyle{Foreground: "ieua", Background: "aie", Href: "http://github.com", Options: []string{"bold", "italic"}},
+		NewOutputStyle("bg=aie;fg=ieua;href=http://github.com;options=bold,italic"),
+	)
+
+	// Test an invalid style
+	assert.Equal((*OutputStyle)(nil), NewOutputStyle("toto=titi;fg=red"))
+}
+
 // TestApplyStyle checks that we can apply a test on a string
 func TestApplyStyle(t *testing.T) {
 	mystyle := OutputStyle{Foreground: "green", Background: "red", Options: []string{"bold"}}

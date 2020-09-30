@@ -15,23 +15,6 @@ func TestGetSubstring(t *testing.T) {
 	assert.Equal("", getSubstring("zaaaz", 50, 51))
 }
 
-// TestExtractStyle checks we can extract styles from a tag
-func TestExtractStyle(t *testing.T) {
-	assert := assert.New(t)
-
-	// Test a simple, valid style
-	assert.Equal(&style.OutputStyle{Foreground: "red", Background: "green"}, extractStyle("bg=green;fg=red"))
-
-	// Test a style with options and href
-	assert.Equal(
-		&style.OutputStyle{Foreground: "ieua", Background: "aie", Href: "http://github.com", Options: []string{"bold", "italic"}},
-		extractStyle("bg=aie;fg=ieua;href=http://github.com;options=bold,italic"),
-	)
-
-	// Test an invalid style
-	assert.Equal((*style.OutputStyle)(nil), extractStyle("toto=titi;fg=red"))
-}
-
 // TestEscapeTrailingBackslash checks we can remove trailing "\"" from texts
 func TestEscapeTrailingBackslash(t *testing.T) {
 	assert := assert.New(t)
@@ -77,7 +60,7 @@ func TestFormatWithStyleWithoutTextBefore(t *testing.T) {
 	)
 
 	// Test with style
-	stack.Push(*extractStyle("bg=green;fg=red"))
+	stack.Push(*style.NewOutputStyle("bg=green;fg=red"))
 	output = []string{"iiiii"}
 	lastLineLength = 5
 	addStringWithStyle("super super super super super super", width, &output, &lastLineLength, stack)
@@ -121,15 +104,15 @@ func TestFormatTextWithoutDefault(t *testing.T) {
 
 	assert.Equal(
 		[]string{"great text"},
-		FormatText("great text", width, ""),
+		FormatText("great text", width, nil),
 	)
 	assert.Equal(
 		[]string{"awesome text        ", "on                  ", "multiple lines."},
-		FormatText("awesome text\non\nmultiple lines.", width, ""),
+		FormatText("awesome text\non\nmultiple lines.", width, nil),
 	)
 	assert.Equal(
 		[]string{"\x1b[31mawesome text\x1b[39m"},
-		FormatText("<fg=red>awesome text</>", width, ""),
+		FormatText("<fg=red>awesome text</>", width, nil),
 	)
 	assert.Equal(
 		[]string{
@@ -137,7 +120,7 @@ func TestFormatTextWithoutDefault(t *testing.T) {
 			"\x1b[31myle and on          \x1b[39m",
 			"\x1b[31mmultiple\x1b[39m lines.",
 		},
-		FormatText("awesome text <fg=red>with style and on\nmultiple</> lines.", width, ""),
+		FormatText("awesome text <fg=red>with style and on\nmultiple</> lines.", width, nil),
 	)
 	assert.Equal(
 		[]string{
@@ -146,36 +129,37 @@ func TestFormatTextWithoutDefault(t *testing.T) {
 			"\x1b[31mon                  \x1b[39m",
 			"\x1b[31mmultiple\x1b[39m lines.",
 		},
-		FormatText("awesome text <fg=red>with <bg=blue>imbricated styles</> and on\nmultiple</> lines.", width, ""),
+		FormatText("awesome text <fg=red>with <bg=blue>imbricated styles</> and on\nmultiple</> lines.", width, nil),
 	)
 
 	// Test edge-cases
-	assert.Equal([]string{""}, FormatText("", width, ""))
-	assert.Equal([]string{""}, FormatText("<fg=red></>", width, ""))
-	assert.Equal([]string{"qsdf"}, FormatText("<fg=wrong>qsdf</>", width, ""))
-	assert.Equal([]string{"<toto=titi>qsdf"}, FormatText("<toto=titi>qsdf</fg=blue>", width, ""))
-	assert.Equal([]string{"\x1b[34mtesttest\x1b[39m"}, FormatText("<fg=blue>testtest", width, ""))
-	assert.Equal([]string{"testtest"}, FormatText("testt</fg=blue>est", width, ""))
+	assert.Equal([]string{""}, FormatText("", width, nil))
+	assert.Equal([]string{""}, FormatText("<fg=red></>", width, nil))
+	assert.Equal([]string{"qsdf"}, FormatText("<fg=wrong>qsdf</>", width, nil))
+	assert.Equal([]string{"<toto=titi>qsdf"}, FormatText("<toto=titi>qsdf</fg=blue>", width, nil))
+	assert.Equal([]string{"\x1b[34mtesttest\x1b[39m"}, FormatText("<fg=blue>testtest", width, nil))
+	assert.Equal([]string{"testtest"}, FormatText("testt</fg=blue>est", width, nil))
 }
 
 // TestFormatTextWithDefault checks that we can format text with a default style
 func TestFormatTextWithDefault(t *testing.T) {
 	assert := assert.New(t)
 	width := 20
+	baseStyle := style.NewOutputStyle("bg=green;fg=blue")
 
 	assert.Equal(
 		[]string{"\x1b[31;42mawesome text\x1b[39;49m"},
-		FormatText("<fg=red>awesome text</>", width, "bg=green;fg=blue"),
+		FormatText("<fg=red>awesome text</>", width, baseStyle),
 	)
 	assert.Equal(
 		[]string{"\x1b[34;42mawesome \x1b[39;49m\x1b[31;42mtext\x1b[39;49m"},
-		FormatText("awesome <fg=red>text</>", width, "bg=green;fg=blue"),
+		FormatText("awesome <fg=red>text</>", width, baseStyle),
 	)
 	assert.Equal(
 		[]string{
 			"\x1b[34;42mawesome \x1b[39;49m\x1b[31;42mtext\x1b[39;49m\x1b[34;42m                    \x1b[39;49m",
 			"\x1b[34;42mwith \x1b[39;49m\x1b[33;42mmultiple lines\x1b[39;49m",
 		},
-		FormatText("awesome <fg=red>text</>\nwith <fg=yellow>multiple lines</>", width, "bg=green;fg=blue"),
+		FormatText("awesome <fg=red>text</>\nwith <fg=yellow>multiple lines</>", width, baseStyle),
 	)
 }
