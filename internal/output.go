@@ -39,8 +39,8 @@ func WriteBlock(message string, padding string, baseStyle string, newLine bool) 
 func Write(message string, newLine bool) {
 	width, _ := terminal.GetWinsize()
 
-	currentLines := FormatText(message, width, nil)
-	fmt.Print(strings.Join(currentLines, "\n"))
+	formattedLines := FormatText(message, width, nil)
+	fmt.Print(strings.Join(formattedLines, "\n"))
 	if newLine {
 		fmt.Print("\n")
 	}

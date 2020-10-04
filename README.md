@@ -92,7 +92,7 @@ styledconsole.Section("My section")
 
 `Text(content string)`
 
-It displays the given string or array of strings as regular text. This is useful to render help messages and instructions for the user running the command:
+It displays the given string as regular text. This is useful to render help messages and instructions for the user running the command:
 
 ```golang
 styledconsole.Text("Some awesome multi-line\ntext")
@@ -107,7 +107,7 @@ styledconsole.Text("Some awesome multi-line\ntext")
 It displays an unordered list of elements passed as an array:
 
 ```golang
-styledconsole.Listing(["item A", "item B", "item δ"])
+styledconsole.Listing([]string{"item A", "item B", "item δ"})
 ```
 
 
@@ -119,7 +119,7 @@ styledconsole.Listing(["item A", "item B", "item δ"])
 It displays the given array of headers and rows as a compact table:
 
 ```golang
-styledconsole.Table(["header1", "header2"], [["cell 1-1", "cell 1-2"], ["cell 2-1", "cell 2-2"]])
+styledconsole.Table([]string{"header 1", "header 2"}, [][]string{[]string{"cell 1-1", "cell 1-2"}, []string{"cell 2-1", "cell 2-2"}})
 ```
 
 `NewLine()`
@@ -136,30 +136,6 @@ styledconsole.NewLine()
 
 // Prints 10 new lines
 styledconsole.NewLines(10)
-```
-
-### Admonition Methods
-
-`Note(content string)`
-
-It displays the given string or array of strings as a highlighted admonition.
-Use this helper sparingly to avoid cluttering command's output:
-
-```golang
-styledconsole.Note("Note should be taken about this particular point")
-```
-
-
----------------------
-
-
-`Caution(content string)`
-
-Similar to the note() helper, but the contents are more prominently highlighted.
-The resulting contents resemble an error message, so you should avoid using this helper unless strictly necessary:
-
-```golang
-styledconsole.Caution("Wow, be careful about this or that")
 ```
 
 ### Progress Bar Methods

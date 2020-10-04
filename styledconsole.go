@@ -8,12 +8,16 @@ import (
 	"github.com/corentindeboisset/styledconsole/internal"
 )
 
+var progressStarted bool
+
+// var currentProgress, maxProgress int
+
 // Section function
 func Section(title string) {
 	titleLen := len(title)
 	underline := strings.Repeat("=", titleLen)
 
-	internal.Write(fmt.Sprintf("<fg=yellow>%s\n%s</>", title, underline), true)
+	internal.Write(fmt.Sprintf("<fg=yellow;options=bold>%s\n%s\n</>", title, underline), true)
 }
 
 // Text function
@@ -24,7 +28,7 @@ func Text(content string) {
 // Listing function
 func Listing(items []string) {
 	for _, item := range items {
-		internal.Write(fmt.Sprintf(" * %s", item), true)
+		internal.Write(fmt.Sprintf(" <fg=yellow>*</> %s", item), true)
 	}
 }
 
@@ -86,24 +90,27 @@ func NewLines(newLineCount int) {
 	}
 }
 
-// Note function
-func Note(content string) {
-}
-
-// Caution function
-func Caution(content string) {
-}
-
 // ProgressStart function
 func ProgressStart(totalSteps int) {
+	if progressStarted {
+		return
+	}
+	progressStarted = true
 }
 
 // ProgressAdvance function
 func ProgressAdvance(stepCount int) {
+	if !progressStarted {
+		return
+	}
 }
 
 // ProgressFinish function
 func ProgressFinish() {
+	if !progressStarted {
+		return
+	}
+	progressStarted = false
 }
 
 // Ask function
@@ -148,7 +155,7 @@ func Success(content string) {
 
 // Warning function
 func Warning(content string) {
-	internal.WriteBlock(fmt.Sprintf("Error:\n%s", content), "# ", "fg=yellow", true)
+	internal.WriteBlock(fmt.Sprintf("Warning:\n%s", content), "# ", "fg=yellow", true)
 }
 
 // Error function
