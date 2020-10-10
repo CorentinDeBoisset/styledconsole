@@ -2,22 +2,19 @@
 
 package terminal
 
-import "golang.org/x/sys/unix"
+import (
+	"os"
 
-const maxLineLength = 250
+	"golang.org/x/crypto/ssh/terminal"
+)
 
 // GetWinsize return the size (width, height) of the current terminal window
 func GetWinsize() (int, int) {
-	ws, err := unix.IoctlGetWinsize(1, unix.TIOCGWINSZ) // file descriptor 1 is stdout
+	width, height, err := terminal.GetSize(int(os.Stdout.Fd()))
 
 	if err != nil {
-		return 60, 60
-	}
-	height := ws.Row
-	width := ws.Col
-	if width > maxLineLength {
-		width = maxLineLength
+		return 120, 60
 	}
 
-	return int(width), int(height)
+	return width, height
 }

@@ -175,6 +175,8 @@ styledconsole.ProgressFinish()
 
 ### User Input Methods
 
+Note that in this section, when there is a validator function as an argument, it is possible to give `nil` to accept any given answer.
+
 `Ask(myquestion string, validator func(string) bool) string`
 
 `AskWithDefault(myquestion string, defaultAnswer string, validator func(string) bool) string`
@@ -185,15 +187,14 @@ The callback is used to validate the input:
 ```golang
 // Ask some question with no pre-defined answer
 styledconsole.Ask("What did you forget to do?", func (res string) bool {
-    return res != "Nothing I swear"
+    return len(res) > 10
 })
 
 // Ask a question with a default, so we can only hit <ENTER> and move on
 styledconsole.AskWithDefault("Where is the sea?", "All around, this is an island", func (res srting) bool {
-    return res != "I don't know"
+    return len(res) > 10
 })
 ```
-
 
 ---------------------
 

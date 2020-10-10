@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/corentindeboisset/styledconsole/internal"
+	"github.com/corentindeboisset/styledconsole/internal/questionhlpr"
 )
 
 var progressStarted bool
@@ -114,18 +115,54 @@ func ProgressFinish() {
 }
 
 // Ask function
-func Ask(question string, validator func(string) bool) string {
-	return ""
+func Ask(question string, validator func(string) bool) (string, error) {
+	q := questionhlpr.Question{
+		Label:         question,
+		IsClosed:      false,
+		IsHidden:      false,
+		DefaultAnswer: "",
+		Validator:     validator,
+	}
+
+	res, err := questionhlpr.AskQuestion(q)
+	if err != nil {
+		return "", err
+	}
+	return res, nil
 }
 
 // AskWithDefault function
-func AskWithDefault(question string, defaultAnswer string, validator func(string) bool) string {
-	return ""
+func AskWithDefault(question string, defaultAnswer string, validator func(string) bool) (string, error) {
+	q := questionhlpr.Question{
+		Label:         question,
+		IsClosed:      false,
+		IsHidden:      false,
+		DefaultAnswer: defaultAnswer,
+		Validator:     validator,
+	}
+
+	res, err := questionhlpr.AskQuestion(q)
+	if err != nil {
+		return "", err
+	}
+	return res, nil
 }
 
 // AskHidden function
-func AskHidden(question string, validator func(string) bool) string {
-	return ""
+func AskHidden(question string, validator func(string) bool) (string, error) {
+	q := questionhlpr.Question{
+		Label:         question,
+		IsClosed:      false,
+		IsHidden:      true,
+		DefaultAnswer: "",
+		Validator:     validator,
+	}
+
+	res, err := questionhlpr.AskQuestion(q)
+	if err != nil {
+		return "", err
+	}
+	return res, nil
 }
 
 // Confirm function

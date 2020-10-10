@@ -3,9 +3,8 @@ package cursor
 import (
 	"fmt"
 	"os"
-	"os/exec"
 
-	"github.com/mattn/go-isatty"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 type Position struct {
@@ -85,19 +84,8 @@ func ClearScreen() {
 
 // GetCurrentPosition returns the current cursor position as a Position{X,Y} object
 func GetCurrentPosition() Position {
-	if isatty.IsTerminal(os.Stdout.Fd()) {
-		cmd := exec.Command("/bin/stty", "-g")
-		cmd.Stdin = os.Stdin
-		sttyMode, err := cmd.Output()
-		if err != nil {
-			return Position{X: 1, Y: 1}
-		}
-
-		// Disable echo and parse stdin for every character
-		cmd = exec.Command("/bin/stty", "-icanon", "-echo")
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		err = cmd.Run()
+	if terminal.IsTerminal(int(os.Stdout.Fd())) {
+		oldState, err := terminal.MakeRaw(int(os.Stdout.Fd()))
 		if err != nil {
 			return Position{X: 1, Y: 1}
 		}
@@ -110,11 +98,7 @@ func GetCurrentPosition() Position {
 			return Position{X: 1, Y: 1}
 		}
 
-		// Return back to the original stty setting
-		cmd = exec.Command("/bin/stty", string(sttyMode))
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		err = cmd.Run()
+		err = terminal.Restore(int(os.Stdout.Fd()), oldState)
 		if err != nil {
 			return Position{X: 1, Y: 1}
 		}
@@ -122,5 +106,5 @@ func GetCurrentPosition() Position {
 		return Position{X: col, Y: row}
 	}
 
-	return Position{X: 100, Y: 7}
+	return Position{X: 1, Y: 1}
 }
