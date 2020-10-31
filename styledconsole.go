@@ -167,12 +167,12 @@ func AskHidden(question string, validator func(string) bool) (string, error) {
 
 // Confirm function
 func Confirm(question string) (bool, error) {
-	return true, nil
+	return questionhlpr.AskConfirm(question, nil)
 }
 
 // ConfirmWithDefault function
 func ConfirmWithDefault(question string, defaultAnswer bool) (bool, error) {
-	return true, nil
+	return questionhlpr.AskConfirm(question, &defaultAnswer)
 }
 
 // Choice function

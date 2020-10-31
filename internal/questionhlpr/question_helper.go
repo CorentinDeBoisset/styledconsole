@@ -8,7 +8,6 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/corentindeboisset/styledconsole/internal/style"
 	"github.com/corentindeboisset/styledconsole/internal/termtools"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -21,14 +20,6 @@ type Question struct {
 	DefaultChoice int
 	DefaultAnswer string
 	Validator     func(string) bool
-}
-
-var greenStyle, redStyle, highlightedChoiceStyle *style.OutputStyle
-
-func init() {
-	greenStyle = style.NewOutputStyle("fg=green")
-	redStyle = style.NewOutputStyle("fg=red")
-	highlightedChoiceStyle = style.NewOutputStyle("fg=cyan;options=bold,underscore")
 }
 
 func AskQuestion(q Question) (string, error) {
