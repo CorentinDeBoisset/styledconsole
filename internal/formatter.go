@@ -162,7 +162,7 @@ func addStringWithStyle(text string, width int, output *[]string, lastLineLength
 	for i, line := range splitLines[:len(splitLines)-1] {
 		if i == 0 && (len(line)+*lastLineLength) < width {
 			// Special case for the first line that has to takes into account currentLineLength
-			splitLines[i] = line + strings.Repeat(" ", width-len(line))
+			splitLines[i] = line + strings.Repeat(" ", width-len(line)-*lastLineLength)
 		} else if i > 0 && len(line) < width {
 			splitLines[i] = line + strings.Repeat(" ", width-len(line))
 		}

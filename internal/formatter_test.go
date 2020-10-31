@@ -116,11 +116,13 @@ func TestFormatTextWithoutDefault(t *testing.T) {
 	)
 	assert.Equal(
 		[]string{
-			"awesome text \x1b[31mwith st\x1b[39m",
-			"\x1b[31myle and on          \x1b[39m",
-			"\x1b[31mmultiple\x1b[39m lines.",
+			"Some                          ",
+			"text                          ",
+			"that can handle \x1b[31mmulti-line    \x1b[39m",
+			"\x1b[31mstyling.\x1b[39m This is a very long l",
+			"ine.",
 		},
-		FormatText("awesome text <fg=red>with style and on\nmultiple</> lines.", width, nil),
+		FormatText("Some\ntext\nthat can handle <fg=red>multi-line\nstyling.</> This is a very long line.", 30, nil),
 	)
 	assert.Equal(
 		[]string{
@@ -157,7 +159,7 @@ func TestFormatTextWithDefault(t *testing.T) {
 	)
 	assert.Equal(
 		[]string{
-			"\x1b[34;42mawesome \x1b[39;49m\x1b[31;42mtext\x1b[39;49m\x1b[34;42m                    \x1b[39;49m",
+			"\x1b[34;42mawesome \x1b[39;49m\x1b[31;42mtext\x1b[39;49m\x1b[34;42m        \x1b[39;49m",
 			"\x1b[34;42mwith \x1b[39;49m\x1b[33;42mmultiple lines\x1b[39;49m",
 		},
 		FormatText("awesome <fg=red>text</>\nwith <fg=yellow>multiple lines</>", width, baseStyle),

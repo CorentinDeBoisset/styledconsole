@@ -95,7 +95,7 @@ styledconsole.Section("Some section")
 It displays the given string as regular text. This is useful to render help messages and instructions for the user running the command:
 
 ```golang
-styledconsole.Text("Some \ntext\nthat can even handles <fg=red>multi-line\nstyling</>")
+styledconsole.Text("Some \ntext\nthat can even handle <fg=red>multi-line\nstyling</>")
 ```
 
 
