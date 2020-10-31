@@ -230,16 +230,26 @@ func askRegularQuestion(q Question) (string, error) {
 		return "", errors.New("Cannot open a prompt outside of a terminal")
 	}
 
-	fmt.Printf("\n%s :\n > ", greenStyle.Apply(strings.TrimSpace(q.Label)))
+	var prompt string
+	if q.DefaultAnswer != "" {
+		prompt = fmt.Sprintf("\n%s [%s]:\n > ", greenStyle.Apply(strings.TrimSpace(q.Label)), yellowStyle.Apply(q.DefaultAnswer))
+	} else {
+		prompt = fmt.Sprintf("\n%s :\n > ", greenStyle.Apply(strings.TrimSpace(q.Label)))
+	}
+	fmt.Print(prompt)
 
 	reader := bufio.NewReader(os.Stdin)
 	answer, err := reader.ReadString('\n')
-	// A line break will always be typed so no need to force it
 
 	if err != nil {
 		return "", fmt.Errorf("There was an error reading the stdin (%s)", err)
 	}
 
+	if answer == "\n" && q.DefaultAnswer != "" {
+		return q.DefaultAnswer, nil
+	}
+
+	// Remove the ending "\n" before returning
 	return answer[:len(answer)-1], nil
 }
 
