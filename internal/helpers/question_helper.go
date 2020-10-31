@@ -1,4 +1,4 @@
-package questionhlpr
+package helpers
 
 import (
 	"bufio"

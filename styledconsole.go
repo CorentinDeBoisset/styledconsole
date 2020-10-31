@@ -6,12 +6,8 @@ import (
 	"strings"
 
 	"github.com/corentindeboisset/styledconsole/internal"
-	"github.com/corentindeboisset/styledconsole/internal/questionhlpr"
+	"github.com/corentindeboisset/styledconsole/internal/helpers"
 )
-
-var progressStarted bool
-
-// var currentProgress, maxProgress int
 
 // Section function
 func Section(title string) {
@@ -91,32 +87,24 @@ func NewLines(newLineCount int) {
 	}
 }
 
-// ProgressStart function
+// ProgressStart starts a progress bar of a given duration
 func ProgressStart(totalSteps int) {
-	if progressStarted {
-		return
-	}
-	progressStarted = true
+	helpers.ProgressStart(totalSteps)
 }
 
-// ProgressAdvance function
+// ProgressAdvance advances the current progress bar of a given stepCount. If there is no progressBar it does nothing
 func ProgressAdvance(stepCount int) {
-	if !progressStarted {
-		return
-	}
+	helpers.ProgressAdvance(stepCount)
 }
 
-// ProgressFinish function
+// ProgressFinish finishes the current progress bar. If there is no progressBar it does nothing
 func ProgressFinish() {
-	if !progressStarted {
-		return
-	}
-	progressStarted = false
+	helpers.ProgressFinish()
 }
 
 // Ask function
 func Ask(question string, validator func(string) bool) (string, error) {
-	q := questionhlpr.Question{
+	q := helpers.Question{
 		Label:         question,
 		IsClosed:      false,
 		IsHidden:      false,
@@ -124,7 +112,7 @@ func Ask(question string, validator func(string) bool) (string, error) {
 		Validator:     validator,
 	}
 
-	res, err := questionhlpr.AskQuestion(q)
+	res, err := helpers.AskQuestion(q)
 	if err != nil {
 		return "", err
 	}
@@ -133,7 +121,7 @@ func Ask(question string, validator func(string) bool) (string, error) {
 
 // AskWithDefault function
 func AskWithDefault(question string, defaultAnswer string, validator func(string) bool) (string, error) {
-	q := questionhlpr.Question{
+	q := helpers.Question{
 		Label:         question,
 		IsClosed:      false,
 		IsHidden:      false,
@@ -141,7 +129,7 @@ func AskWithDefault(question string, defaultAnswer string, validator func(string
 		Validator:     validator,
 	}
 
-	res, err := questionhlpr.AskQuestion(q)
+	res, err := helpers.AskQuestion(q)
 	if err != nil {
 		return "", err
 	}
@@ -150,7 +138,7 @@ func AskWithDefault(question string, defaultAnswer string, validator func(string
 
 // AskHidden function
 func AskHidden(question string, validator func(string) bool) (string, error) {
-	q := questionhlpr.Question{
+	q := helpers.Question{
 		Label:         question,
 		IsClosed:      false,
 		IsHidden:      true,
@@ -158,7 +146,7 @@ func AskHidden(question string, validator func(string) bool) (string, error) {
 		Validator:     validator,
 	}
 
-	res, err := questionhlpr.AskQuestion(q)
+	res, err := helpers.AskQuestion(q)
 	if err != nil {
 		return "", err
 	}
@@ -167,24 +155,24 @@ func AskHidden(question string, validator func(string) bool) (string, error) {
 
 // Confirm function
 func Confirm(question string) (bool, error) {
-	return questionhlpr.AskConfirm(question, nil)
+	return helpers.AskConfirm(question, nil)
 }
 
 // ConfirmWithDefault function
 func ConfirmWithDefault(question string, defaultAnswer bool) (bool, error) {
-	return questionhlpr.AskConfirm(question, &defaultAnswer)
+	return helpers.AskConfirm(question, &defaultAnswer)
 }
 
 // Choice function
 func Choice(question string, choices []string) (string, error) {
-	q := questionhlpr.Question{
+	q := helpers.Question{
 		Label:         question,
 		IsClosed:      true,
 		Choices:       choices,
 		DefaultChoice: -1,
 	}
 
-	choice, err := questionhlpr.AskQuestion(q)
+	choice, err := helpers.AskQuestion(q)
 	if err != nil {
 		fmt.Printf("error: %s", err)
 		return "", err
@@ -195,14 +183,14 @@ func Choice(question string, choices []string) (string, error) {
 
 // ChoiceWithDefault function
 func ChoiceWithDefault(question string, choices []string, defaultAnswer int) (string, error) {
-	q := questionhlpr.Question{
+	q := helpers.Question{
 		Label:         question,
 		IsClosed:      true,
 		Choices:       choices,
 		DefaultChoice: defaultAnswer,
 	}
 
-	choice, err := questionhlpr.AskQuestion(q)
+	choice, err := helpers.AskQuestion(q)
 	if err != nil {
 		fmt.Printf("error: %s", err)
 		return "", err
