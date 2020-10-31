@@ -102,13 +102,24 @@ func askClosedQuestion(q Question) (string, error) {
 
 	// Run the display loop
 	selectedIndex := -1
-	highlightedIndex := 0
 	choiceCount := len(printableChoices)
-	termtools.HideCursor()
-
 	scrollWindowHeight := getScrollWindowHeight(choiceCount, height)
+	highlightedIndex := 0
 	scroll := 0
 
+	if q.DefaultChoice > 0 && q.DefaultChoice < choiceCount-1 {
+		// Set the default answer, and adapt the initial scrolling
+		highlightedIndex = q.DefaultChoice
+		if highlightedIndex > scrollWindowHeight {
+			if highlightedIndex < choiceCount-2 {
+				scroll = highlightedIndex - scrollWindowHeight
+			} else {
+				scroll = choiceCount - scrollWindowHeight - 2
+			}
+		}
+	}
+
+	termtools.HideCursor()
 	for selectedIndex == -1 {
 		termtools.ClearWindowFromCursor()
 		fmt.Printf(" %s:", greenStyle.Apply(q.Label))
@@ -155,8 +166,12 @@ func askClosedQuestion(q Question) (string, error) {
 					} else {
 						highlightedIndex -= 1
 						// Update scrolling if necessary
-						if scroll >= highlightedIndex && highlightedIndex > 0 {
-							scroll = highlightedIndex - 1
+						if scroll >= highlightedIndex {
+							if highlightedIndex > 1 {
+								scroll = highlightedIndex - 1
+							} else {
+								scroll = 0
+							}
 						}
 					}
 					break
@@ -168,8 +183,12 @@ func askClosedQuestion(q Question) (string, error) {
 					} else {
 						highlightedIndex += 1
 						// Update scrolling if necessary
-						if scroll <= highlightedIndex-scrollWindowHeight-1 && highlightedIndex < choiceCount-1 {
-							scroll = highlightedIndex - scrollWindowHeight
+						if scroll <= highlightedIndex-scrollWindowHeight-1 {
+							if highlightedIndex < choiceCount-2 {
+								scroll = highlightedIndex - scrollWindowHeight
+							} else {
+								scroll = choiceCount - scrollWindowHeight - 2
+							}
 						}
 					}
 					break

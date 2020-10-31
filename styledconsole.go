@@ -194,8 +194,21 @@ func Choice(question string, choices []string) (string, error) {
 }
 
 // ChoiceWithDefault function
-func ChoiceWithDefault(question string, choices []string, defaultAnswer int) (int, error) {
-	return 0, nil
+func ChoiceWithDefault(question string, choices []string, defaultAnswer int) (string, error) {
+	q := questionhlpr.Question{
+		Label:         question,
+		IsClosed:      true,
+		Choices:       choices,
+		DefaultChoice: defaultAnswer,
+	}
+
+	choice, err := questionhlpr.AskQuestion(q)
+	if err != nil {
+		fmt.Printf("error: %s", err)
+		return "", err
+	}
+
+	return choice, nil
 }
 
 // Success function

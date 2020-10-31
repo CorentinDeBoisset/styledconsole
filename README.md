@@ -243,7 +243,7 @@ The value returned is the index of the selected answer:
 ```golang
 // Ask between some choices
 styledconsole.Choice("To be or not to be?", []string{"To be", "Not to be"})
-// Ask between some choices with a default, so we can hit <ENTER> and move on (...and go?)
+// Ask between some choices with a default, so we can hit <ENTER> and move on
 styledconsole.ChoiceWithDefault("Should I stay or should I go", []string{"Stay", "Go"}, 1)
 ```
 
