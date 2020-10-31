@@ -72,7 +72,7 @@ It displays the given string as the command title.
 This method is meant to be used only once in a given command, but nothing prevents you to use it repeatedly:
 
 ```golang
-styledconsole.Title("My Title")
+styledconsole.Title("Some Title")
 ```
 
 
@@ -85,7 +85,7 @@ It displays the given string as the title of some command section.
 This is only needed in complex commands which want to better separate their contents:
 
 ```golang
-styledconsole.Section("My section")
+styledconsole.Section("Some section")
 ```
 
 ### Content methods
@@ -95,7 +95,7 @@ styledconsole.Section("My section")
 It displays the given string as regular text. This is useful to render help messages and instructions for the user running the command:
 
 ```golang
-styledconsole.Text("Some awesome multi-line\ntext")
+styledconsole.Text("Some \ntext\nthat can even handles <fg=red>multi-line\nstyling</>")
 ```
 
 
@@ -186,14 +186,12 @@ The callback is used to validate the input:
 
 ```golang
 // Ask some question with no pre-defined answer
-styledconsole.Ask("What did you forget to do?", func (res string) bool {
+styledconsole.Ask("Do you have anything (more than 10char) to say?", func (res string) bool {
     return len(res) > 10
 })
 
 // Ask a question with a default, so we can only hit <ENTER> and move on
-styledconsole.AskWithDefault("Where is the sea?", "All around, this is an island", func (res srting) bool {
-    return len(res) > 10
-})
+styledconsole.AskWithDefault("What is your favourite colour?", "Blue. No, yel-- auuuuuuuugh! ", nil)
 ```
 
 ---------------------
@@ -205,7 +203,7 @@ It's very similar to the `ask(...)` method but the user's input will be hidden.
 Use it when asking for sensitive information:
 
 ```golang
-res := styledconsole.AskHidden("What do you want to hide from your neighbors?", func (res string) bool {
+res := styledconsole.AskHidden("What is your password?", func (res string) bool {
     return len(res) > 0
 })
 ```
@@ -222,11 +220,10 @@ It asks a Yes/No question to the user and it only returns true or false:
 
 ```golang
 // Ask a non-determined yes/no question
-styledconsole.Confirm("Is this real life?")
+styledconsole.Confirm("You are about to wipe your computer, are you sure?")
 
 // Ask a yes/no question with a default, so we can only hit <ENTER> and move on
-styledconsole.ConfirmWithDefault("Is false as true to true while true can be false to false?", false)
-
+styledconsole.ConfirmWithDefault("Should we continue?", true)
 ```
 
 
@@ -255,7 +252,7 @@ It displays the given string or array of strings highlighted as a successful mes
 It's meant to be used once to display the final result of executing the given command, but you can use it repeatedly during the execution of the command:
 
 ```golang
-styledconsole.Success("The atomic bomb model was a dud, you're safe.")
+styledconsole.Success("Everything is fine.")
 ```
 
 
@@ -268,7 +265,7 @@ It displays the given string or array of strings highlighted as a warning messag
 It's meant to be used once to display the final result of executing the given command, but you can use it repeatedly during the execution of the command:
 
 ```golang
-styledconsole.Warning("Your backpack just started ticking.")
+styledconsole.Warning("You should worry about this.")
 ```
 
 
@@ -281,5 +278,5 @@ It displays the given string or array of strings highlighted as an error message
 It's meant to be used once to display the final result of executing the given command, but you can use it repeatedly during the execution of the command:
 
 ```golang
-styledconsole.Error("Someone lit a cigarette in the firework storing area.")
+styledconsole.Error("There was an error.")
 ```
