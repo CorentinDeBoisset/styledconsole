@@ -166,23 +166,36 @@ func AskHidden(question string, validator func(string) bool) (string, error) {
 }
 
 // Confirm function
-func Confirm(question string) bool {
-	return true
+func Confirm(question string) (bool, error) {
+	return true, nil
 }
 
 // ConfirmWithDefault function
-func ConfirmWithDefault(question string, defaultAnswer bool) bool {
-	return true
+func ConfirmWithDefault(question string, defaultAnswer bool) (bool, error) {
+	return true, nil
 }
 
 // Choice function
-func Choice(question string, choices []string) int {
-	return 0
+func Choice(question string, choices []string) (string, error) {
+	q := questionhlpr.Question{
+		Label:         question,
+		IsClosed:      true,
+		Choices:       choices,
+		DefaultChoice: -1,
+	}
+
+	choice, err := questionhlpr.AskQuestion(q)
+	if err != nil {
+		fmt.Printf("error: %s", err)
+		return "", err
+	}
+
+	return choice, nil
 }
 
 // ChoiceWithDefault function
-func ChoiceWithDefault(question string, choices []string, defaultAnswer int) int {
-	return 0
+func ChoiceWithDefault(question string, choices []string, defaultAnswer int) (int, error) {
+	return 0, nil
 }
 
 // Success function

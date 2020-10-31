@@ -1,4 +1,4 @@
-package cursor
+package termtools
 
 import (
 	"fmt"
@@ -13,77 +13,77 @@ type Position struct {
 }
 
 // MoveUp moves the cursor a given number of lines up
-func MoveUp(lines int) {
+func MoveCursorUp(lines int) {
 	fmt.Printf("\033[%dA", lines)
 }
 
 // MoveDown moves the cursor a given number of lines down
-func MoveDown(lines int) {
+func MoveCursorDown(lines int) {
 	fmt.Printf("\033[%dB", lines)
 }
 
 // MoveRight moves the cursor a given number of lines to the right
-func MoveRight(columns int) {
+func MoveCursorRight(columns int) {
 	fmt.Printf("\033[%dC", columns)
 }
 
 // MoveLeft moves the cursor a given number of lines to the left
-func MoveLeft(columns int) {
+func MoveCursorLeft(columns int) {
 	fmt.Printf("\033[%dD", columns)
 }
 
 // MoveToColumn moves the cursor a given column
-func MoveToColumn(column int) {
+func MoveCursorToColumn(column int) {
 	fmt.Printf("\033[%dG", column)
 }
 
 // MoveToColumn moves the cursor a given row and column in the terminal
-func MoveToPosition(column int, row int) {
+func MoveCursorToPosition(column int, row int) {
 	fmt.Printf("\033[%d;%dH", row+1, column)
 }
 
-// SavePosition saves the position of the cursor, so it can be brought back with cursor.RestorePosition()
-func SavePosition() {
+// SaveCursorPosition saves the position of the cursor, so it can be brought back with cursor.RestoreCursorPosition()
+func SaveCursorPosition() {
 	fmt.Print("\0337")
 }
 
-// RestorePosition brings back the cursor to the position it was saved with cursor.SavePosition()
-func RestorePosition() {
+// RestoreCursorPosition brings back the cursor to the position it was saved with cursor.SaveCursorPosition()
+func RestoreCursorPosition() {
 	fmt.Print("\0338")
 }
 
-// Hide hides the cursor, can be reversed with cursor.Show()
-func Hide() {
+// HideCursor hides the cursor, can be reversed with cursor.ShowCursor()
+func HideCursor() {
 	fmt.Print("\033[?25l")
 }
 
-// Show restores the cursor after it was hidden
-func Show() {
+// ShowCursor restores the cursor after it was hidden
+func ShowCursor() {
 	fmt.Print("\033[?25h\033[?0c")
 }
 
-// ClearLine clears all the output from the current line.
-func ClearLine() {
+// ClearCursorLine clears all the output from the current line.
+func ClearCursorLine() {
 	fmt.Print("\033[2K")
 }
 
-// ClearLineAfter clears all the output from the current line after the current position.
-func ClearLineAfter() {
+// ClearCursorEndLine clears all the output from the current line after the current position.
+func ClearCursorEndLine() {
 	fmt.Print("\033[K")
 }
 
-// ClearOutput clears all the output from the cursors' current position to the end of the screen.
-func ClearOutput() {
+// ClearWindowFromCursor clears all the output from the cursors' current position to the end of the screen.
+func ClearWindowFromCursor() {
 	fmt.Print("\033[0J")
 }
 
-// ClearScreen clears the entire screen.
-func ClearScreen() {
+// ClearWindow clears the entire screen.
+func ClearWindow() {
 	fmt.Print("\033[2J")
 }
 
 // GetCurrentPosition returns the current cursor position as a Position{X,Y} object
-func GetCurrentPosition() Position {
+func GetCurrentCursorPosition() Position {
 	if terminal.IsTerminal(int(os.Stdout.Fd())) {
 		oldState, err := terminal.MakeRaw(int(os.Stdout.Fd()))
 		if err != nil {
@@ -107,4 +107,15 @@ func GetCurrentPosition() Position {
 	}
 
 	return Position{X: 1, Y: 1}
+}
+
+// GetWinsize return the size (width, height) of the current terminal window
+func GetWinsize() (int, int) {
+	width, height, err := terminal.GetSize(int(os.Stdout.Fd()))
+
+	if err != nil {
+		return 120, 60
+	}
+
+	return width, height
 }

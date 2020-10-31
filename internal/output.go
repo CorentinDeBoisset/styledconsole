@@ -5,12 +5,12 @@ import (
 	"strings"
 
 	"github.com/corentindeboisset/styledconsole/internal/style"
-	"github.com/corentindeboisset/styledconsole/internal/terminal"
+	"github.com/corentindeboisset/styledconsole/internal/termtools"
 )
 
 // WriteBlock prints a block of text using a string padding, with optionnal styles
 func WriteBlock(message string, padding string, baseStyle string, newLine bool) {
-	width, _ := terminal.GetWinsize()
+	width, _ := termtools.GetWinsize()
 
 	widthWithoutPadding := width - len(padding)
 	extractedBaseStyle := style.NewOutputStyle(baseStyle)
@@ -37,7 +37,7 @@ func WriteBlock(message string, padding string, baseStyle string, newLine bool) 
 
 // Write prints a list of messages, one per line, with an optionnal end-of-line at the end
 func Write(message string, newLine bool) {
-	width, _ := terminal.GetWinsize()
+	width, _ := termtools.GetWinsize()
 
 	formattedLines := FormatText(message, width, nil)
 	fmt.Print(strings.Join(formattedLines, "\n"))
