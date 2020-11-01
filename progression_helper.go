@@ -1,4 +1,4 @@
-package helpers
+package styledconsole
 
 import (
 	"fmt"
@@ -18,6 +18,7 @@ var progressDone int
 var lastPrintAdvancement int
 var lastPrintTime time.Time
 
+// ProgressStart starts a progress bar of a given duration
 func ProgressStart(totalSteps int) {
 	if progressStarted || totalSteps < 0 {
 		return
@@ -35,6 +36,7 @@ func ProgressStart(totalSteps int) {
 	lastPrintTime = time.Now()
 }
 
+// ProgressAdvance advances the current progress bar of a given stepCount. If there is no progressBar it does nothing
 func ProgressAdvance(stepCount int) {
 	if !progressStarted || stepCount == 0 {
 		return
@@ -58,6 +60,7 @@ func ProgressAdvance(stepCount int) {
 	}
 }
 
+// ProgressFinish finishes the current progress bar. If there is no progressBar it does nothing
 func ProgressFinish() {
 	if !progressStarted {
 		return

@@ -1,4 +1,4 @@
-package helpers
+package styledconsole
 
 import (
 	"bufio"
@@ -8,11 +8,10 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/corentindeboisset/styledconsole/internal/termtools"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-type Question struct {
+type question struct {
 	Label         string
 	IsClosed      bool
 	IsHidden      bool
@@ -22,7 +21,7 @@ type Question struct {
 	Validator     func(string) bool
 }
 
-func AskQuestion(q Question) (string, error) {
+func askQuestion(q question) (string, error) {
 	if q.IsClosed && len(q.Choices) > 1 {
 		ret, err := askClosedQuestion(q)
 		if err != nil {
@@ -63,12 +62,12 @@ func AskQuestion(q Question) (string, error) {
 	return "", errors.New("The question object is invalid")
 }
 
-func askClosedQuestion(q Question) (string, error) {
+func askClosedQuestion(q question) (string, error) {
 	if !terminal.IsTerminal(int(os.Stdout.Fd())) {
 		return "", errors.New("Cannot open a prompt outside of a TTY")
 	}
 
-	width, height := termtools.GetWinsize()
+	width, height := getWinsize()
 
 	if height < 3 || width < 20 {
 		// TODO improve this behavior
@@ -110,9 +109,9 @@ func askClosedQuestion(q Question) (string, error) {
 		}
 	}
 
-	termtools.HideCursor()
+	hideCursor()
 	for selectedIndex == -1 {
-		termtools.ClearWindowFromCursor()
+		clearWindowFromCursor()
 		fmt.Printf(" %s:", greenStyle.Apply(q.Label))
 
 		// Print the first line, either the first choice or a "↑"
@@ -142,7 +141,7 @@ func askClosedQuestion(q Question) (string, error) {
 			numRead, err := reader.Read(bytes)
 
 			// Re-parse the height in case the user resized their terminal
-			_, height = termtools.GetWinsize()
+			_, height = getWinsize()
 			scrollWindowHeight = getScrollWindowHeight(choiceCount, height)
 
 			if err != nil {
@@ -189,7 +188,7 @@ func askClosedQuestion(q Question) (string, error) {
 				break
 			} else if numRead == 1 && bytes[0] == 3 {
 				// Ctrl-C
-				termtools.ShowCursor()
+				showCursor()
 				fmt.Printf("\033[%dB\033[1000D", scrollWindowHeight+3)
 				_ = terminal.Restore(int(os.Stdout.Fd()), oldState)
 				_ = syscall.Kill(syscall.Getpid(), syscall.SIGINT)
@@ -202,13 +201,13 @@ func askClosedQuestion(q Question) (string, error) {
 		}
 	}
 	fmt.Printf("\033[%dB\033[1000D", scrollWindowHeight+3)
-	termtools.ShowCursor()
+	showCursor()
 	_ = terminal.Restore(int(os.Stdout.Fd()), oldState)
 
 	return q.Choices[selectedIndex], nil
 }
 
-func askHiddenQuestion(q Question) (string, error) {
+func askHiddenQuestion(q question) (string, error) {
 	if !terminal.IsTerminal(int(os.Stdout.Fd())) {
 		return "", errors.New("Cannot open a prompt outside of a terminal")
 	}
@@ -225,7 +224,7 @@ func askHiddenQuestion(q Question) (string, error) {
 	return string(answerBytes), nil
 }
 
-func askRegularQuestion(q Question) (string, error) {
+func askRegularQuestion(q question) (string, error) {
 	if !terminal.IsTerminal(int(os.Stdout.Fd())) {
 		return "", errors.New("Cannot open a prompt outside of a terminal")
 	}

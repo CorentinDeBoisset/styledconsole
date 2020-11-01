@@ -1,4 +1,4 @@
-package helpers
+package styledconsole
 
 import (
 	"bufio"
@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func AskConfirm(label string, defaultAnswer *bool) (bool, error) {
+func askConfirm(label string, defaultAnswer *bool) (bool, error) {
 	if !terminal.IsTerminal(int(os.Stdout.Fd())) {
 		return false, errors.New("Cannot open a prompt outside of a terminal")
 	}

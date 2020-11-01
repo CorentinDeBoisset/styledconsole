@@ -1,9 +1,8 @@
-package internal
+package styledprinter
 
 import (
 	"testing"
 
-	"github.com/corentindeboisset/styledconsole/internal/style"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,7 +28,7 @@ func TestEscapeTrailingBackslash(t *testing.T) {
 func TestFormatWithStyleWithoutTextBefore(t *testing.T) {
 	assert := assert.New(t)
 	width := 20
-	stack := style.OutputStyleStack{}
+	stack := newOutputStyleStack("")
 
 	// Test line-cutting
 	output := []string{}
@@ -60,7 +59,7 @@ func TestFormatWithStyleWithoutTextBefore(t *testing.T) {
 	)
 
 	// Test with style
-	stack.Push(*style.NewOutputStyle("bg=green;fg=red"))
+	stack.Push("bg=green;fg=red")
 	output = []string{"iiiii"}
 	lastLineLength = 5
 	addStringWithStyle("super super super super super super", width, &output, &lastLineLength, stack)
@@ -104,15 +103,15 @@ func TestFormatTextWithoutDefault(t *testing.T) {
 
 	assert.Equal(
 		[]string{"great text"},
-		FormatText("great text", width, nil),
+		formatText("great text", width, ""),
 	)
 	assert.Equal(
 		[]string{"awesome text        ", "on                  ", "multiple lines."},
-		FormatText("awesome text\non\nmultiple lines.", width, nil),
+		formatText("awesome text\non\nmultiple lines.", width, ""),
 	)
 	assert.Equal(
 		[]string{"\x1b[31mawesome text\x1b[39m"},
-		FormatText("<fg=red>awesome text</>", width, nil),
+		formatText("<fg=red>awesome text</>", width, ""),
 	)
 	assert.Equal(
 		[]string{
@@ -122,7 +121,7 @@ func TestFormatTextWithoutDefault(t *testing.T) {
 			"\x1b[31mstyling.\x1b[39m This is a very long l",
 			"ine.",
 		},
-		FormatText("Some\ntext\nthat can handle <fg=red>multi-line\nstyling.</> This is a very long line.", 30, nil),
+		formatText("Some\ntext\nthat can handle <fg=red>multi-line\nstyling.</> This is a very long line.", 30, ""),
 	)
 	assert.Equal(
 		[]string{
@@ -131,37 +130,36 @@ func TestFormatTextWithoutDefault(t *testing.T) {
 			"\x1b[31mon                  \x1b[39m",
 			"\x1b[31mmultiple\x1b[39m lines.",
 		},
-		FormatText("awesome text <fg=red>with <bg=blue>imbricated styles</> and on\nmultiple</> lines.", width, nil),
+		formatText("awesome text <fg=red>with <bg=blue>imbricated styles</> and on\nmultiple</> lines.", width, ""),
 	)
 
 	// Test edge-cases
-	assert.Equal([]string{""}, FormatText("", width, nil))
-	assert.Equal([]string{""}, FormatText("<fg=red></>", width, nil))
-	assert.Equal([]string{"qsdf"}, FormatText("<fg=wrong>qsdf</>", width, nil))
-	assert.Equal([]string{"<toto=titi>qsdf"}, FormatText("<toto=titi>qsdf</fg=blue>", width, nil))
-	assert.Equal([]string{"\x1b[34mtesttest\x1b[39m"}, FormatText("<fg=blue>testtest", width, nil))
-	assert.Equal([]string{"testtest"}, FormatText("testt</fg=blue>est", width, nil))
+	assert.Equal([]string{""}, formatText("", width, ""))
+	assert.Equal([]string{""}, formatText("<fg=red></>", width, ""))
+	assert.Equal([]string{"qsdf"}, formatText("<fg=wrong>qsdf</>", width, ""))
+	assert.Equal([]string{"<toto=titi>qsdf</fg=", "blue>"}, formatText("<toto=titi>qsdf</fg=blue>", width, ""))
+	assert.Equal([]string{"\x1b[34mtesttest\x1b[39m"}, formatText("<fg=blue>testtest", width, ""))
+	assert.Equal([]string{"testt</fg=blue>est"}, formatText("testt</fg=blue>est", width, ""))
 }
 
 // TestFormatTextWithDefault checks that we can format text with a default style
 func TestFormatTextWithDefault(t *testing.T) {
 	assert := assert.New(t)
 	width := 20
-	baseStyle := style.NewOutputStyle("bg=green;fg=blue")
 
 	assert.Equal(
 		[]string{"\x1b[31;42mawesome text\x1b[39;49m"},
-		FormatText("<fg=red>awesome text</>", width, baseStyle),
+		formatText("<fg=red>awesome text</>", width, "bg=green;fg=blue"),
 	)
 	assert.Equal(
 		[]string{"\x1b[34;42mawesome \x1b[39;49m\x1b[31;42mtext\x1b[39;49m"},
-		FormatText("awesome <fg=red>text</>", width, baseStyle),
+		formatText("awesome <fg=red>text</>", width, "bg=green;fg=blue"),
 	)
 	assert.Equal(
 		[]string{
 			"\x1b[34;42mawesome \x1b[39;49m\x1b[31;42mtext\x1b[39;49m\x1b[34;42m        \x1b[39;49m",
 			"\x1b[34;42mwith \x1b[39;49m\x1b[33;42mmultiple lines\x1b[39;49m",
 		},
-		FormatText("awesome <fg=red>text</>\nwith <fg=yellow>multiple lines</>", width, baseStyle),
+		formatText("awesome <fg=red>text</>\nwith <fg=yellow>multiple lines</>", width, "bg=green;fg=blue"),
 	)
 }

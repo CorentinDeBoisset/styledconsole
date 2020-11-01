@@ -1,11 +1,9 @@
-package internal
+package styledprinter
 
 import (
 	"fmt"
 	"regexp"
 	"strings"
-
-	"github.com/corentindeboisset/styledconsole/internal/style"
 )
 
 var (
@@ -33,21 +31,16 @@ func EscapeTrailingBackslash(text string) string {
 	return text
 }
 
-// FormatText find all tags and replace them with the correct escape sequences,
+// formatText find all tags and replace them with the correct escape sequences,
 // and adds newlines when necessary to ensure the output is fine in a given terminal
-func FormatText(text string, width int, baseStyle *style.OutputStyle) []string {
+func formatText(text string, width int, baseStyleString string) []string {
 	var offset int
-	var styleStack style.OutputStyleStack
 
 	output := []string{""}
 	currentLineLength := 0
 
 	tagMatches := tagRegexp.FindAllSubmatchIndex([]byte(text), -1)
-	if baseStyle != nil {
-		styleStack = style.OutputStyleStack{BaseStyle: baseStyle}
-	} else {
-		styleStack = style.OutputStyleStack{}
-	}
+	styleStack := newOutputStyleStack(baseStyleString)
 
 	for _, tagIndexes := range tagMatches {
 		if tagIndexes[0] == 0 && text[len(text)-1] == '\\' {
@@ -72,14 +65,16 @@ func FormatText(text string, width int, baseStyle *style.OutputStyle) []string {
 			// tag is </>
 			styleStack.PopCurrent()
 		} else {
-			style := style.NewOutputStyle(tagName)
-			if style == nil {
-				// We detected a tag incorrectly, we write the text in the regex
-				addStringWithStyle(text[tagIndexes[0]:tagIndexes[1]], width, &output, &currentLineLength, styleStack)
-			} else if openingTag {
-				styleStack.Push(*style)
+			var validTag bool
+			if openingTag {
+				validTag = styleStack.Push(tagName)
 			} else {
-				styleStack.Pop(*style)
+				validTag = styleStack.Pop(tagName)
+			}
+
+			if !validTag {
+				// If the tag is invalid, we write its text
+				addStringWithStyle(text[tagIndexes[0]:tagIndexes[1]], width, &output, &currentLineLength, styleStack)
 			}
 		}
 	}
@@ -107,7 +102,7 @@ func getSubstring(s string, start int, end int) string {
 }
 
 // This function is pretty bad, it should be much more clean and thoroughly tested
-func addStringWithStyle(text string, width int, output *[]string, lastLineLength *int, stack style.OutputStyleStack) {
+func addStringWithStyle(text string, width int, output *[]string, lastLineLength *int, stack outputStyleStack) {
 	// First, handle invalid argument cases
 	if text == `` || width == 0 || output == nil {
 		return

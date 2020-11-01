@@ -1,4 +1,4 @@
-package style
+package styledprinter
 
 import (
 	"fmt"
@@ -48,11 +48,11 @@ var (
 // OutputStyle contains the required data to print special text on the console
 // They reference the available styles juste above
 type OutputStyle struct {
-	Foreground           string
-	Background           string
-	Href                 string
-	HandleHrefGracefully *bool
-	Options              []string
+	foreground           string
+	background           string
+	href                 string
+	handleHrefGracefully bool
+	options              map[string]bool
 }
 
 func NewOutputStyle(styleString string) *OutputStyle {
@@ -61,21 +61,29 @@ func NewOutputStyle(styleString string) *OutputStyle {
 		return nil
 	}
 
-	extractedStyle := new(OutputStyle)
+	var foreground string
+	var background string
+	var href string
+	var handleHrefGracefully bool
+	var options map[string]bool
+
 	for _, attrMatches := range styleMatches {
 		styleName := strings.ToLower(styleString[attrMatches[2]:attrMatches[3]])
 		styleValue := styleString[attrMatches[4]:attrMatches[5]]
 
 		if `fg` == styleName {
-			extractedStyle.Foreground = strings.ToLower(styleValue)
+			foreground = strings.ToLower(styleValue)
 		} else if `bg` == styleName {
-			extractedStyle.Background = strings.ToLower(styleValue)
+			background = strings.ToLower(styleValue)
 		} else if `href` == styleName {
-			extractedStyle.Href = styleValue
+			href = styleValue
 		} else if `options` == styleName {
+			if options == nil {
+				options = make(map[string]bool)
+			}
 			separatorMatches := separatorRegexp.FindAllSubmatchIndex([]byte(strings.ToLower(styleValue)), -1)
 			for _, separatorIndexes := range separatorMatches {
-				extractedStyle.Options = append(extractedStyle.Options, styleValue[separatorIndexes[2]:separatorIndexes[3]])
+				options[styleValue[separatorIndexes[2]:separatorIndexes[3]]] = true
 			}
 		} else {
 			// If there is an unknown attribute, the whole style is voided
@@ -83,7 +91,15 @@ func NewOutputStyle(styleString string) *OutputStyle {
 		}
 	}
 
-	return extractedStyle
+	handleHrefGracefully = os.Getenv("TERMINAL_EMULATOR") != `JetBrains-JediTerm` && os.Getenv("KONSOLE_VERSION") == ``
+
+	return &OutputStyle{
+		foreground:           foreground,
+		background:           background,
+		href:                 href,
+		handleHrefGracefully: handleHrefGracefully,
+		options:              options,
+	}
 }
 
 // Apply surrounds a given string with the adequate escape sequence
@@ -91,28 +107,23 @@ func (s OutputStyle) Apply(text string) string {
 	var setCodes []string
 	var unsetCodes []string
 
-	if s.HandleHrefGracefully == nil {
-		s.HandleHrefGracefully = new(bool)
-		*s.HandleHrefGracefully = os.Getenv("TERMINAL_EMULATOR") != `JetBrains-JediTerm` && os.Getenv("KONSOLE_VERSION") == ``
-	}
-
-	if foreground, ok := availableForegroundColors[s.Foreground]; ok {
+	if foreground, ok := availableForegroundColors[s.foreground]; ok {
 		setCodes = append(setCodes, foreground[0])
 		unsetCodes = append(unsetCodes, foreground[1])
 	}
-	if background, ok := availableBackgroundColors[s.Background]; ok {
+	if background, ok := availableBackgroundColors[s.background]; ok {
 		setCodes = append(setCodes, background[0])
 		unsetCodes = append(unsetCodes, background[1])
 	}
-	for _, styleOption := range s.Options {
-		if option, ok := availableOptions[styleOption]; ok {
+	for styleOption, enabled := range s.options {
+		if option, ok := availableOptions[styleOption]; ok && enabled {
 			setCodes = append(setCodes, option[0])
 			unsetCodes = append(unsetCodes, option[1])
 		}
 	}
 
-	if s.Href != `` && s.HandleHrefGracefully != nil && *s.HandleHrefGracefully {
-		return fmt.Sprintf("\033]8;;%s\033\\%s\033]8;;\033\\", s.Href, text)
+	if s.href != `` && s.handleHrefGracefully {
+		return fmt.Sprintf("\033]8;;%s\033\\%s\033]8;;\033\\", s.href, text)
 	}
 
 	if len(setCodes) == 0 {
@@ -124,27 +135,4 @@ func (s OutputStyle) Apply(text string) string {
 	sort.Strings(unsetCodes)
 
 	return fmt.Sprintf("\033[%sm%s\033[%sm", strings.Join(setCodes, ";"), text, strings.Join(unsetCodes, ";"))
-}
-
-// MergeBase merges a base style on another style
-func (s *OutputStyle) MergeBase(baseStyle OutputStyle) {
-	// Apply the baseStyle's foreground and background if they are not defined on the current style
-	if len(s.Foreground) == 0 && len(baseStyle.Foreground) > 0 {
-		s.Foreground = baseStyle.Foreground
-	}
-	if len(s.Background) == 0 && len(baseStyle.Background) > 0 {
-		s.Background = baseStyle.Background
-	}
-	// Same with the options
-	for _, baseOption := range baseStyle.Options {
-		optionAlreadySet := false
-		for _, styleOption := range s.Options {
-			if baseOption == styleOption {
-				optionAlreadySet = true
-			}
-		}
-		if !optionAlreadySet {
-			s.Options = append(s.Options, baseOption)
-		}
-	}
 }

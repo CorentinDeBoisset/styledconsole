@@ -1,31 +1,30 @@
-// nolint:deadcode,unused
-package main
+// Helper functions to pretty-print messages in a terminal.
+package styledconsole
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/corentindeboisset/styledconsole/internal"
-	"github.com/corentindeboisset/styledconsole/internal/helpers"
+	"github.com/corentindeboisset/styledconsole/styledprinter"
 )
 
-// Section function
+// Section prints a section title
 func Section(title string) {
 	titleLen := len(title)
 	underline := strings.Repeat("=", titleLen)
 
-	internal.Write(fmt.Sprintf("<fg=yellow;options=bold>%s\n%s\n</>", title, underline), true)
+	styledprinter.Write(fmt.Sprintf("<fg=yellow;options=bold>%s\n%s\n</>", title, underline), true)
 }
 
 // Text function
 func Text(content string) {
-	internal.Write(content, true)
+	styledprinter.Write(content, true)
 }
 
 // Listing function
 func Listing(items []string) {
 	for _, item := range items {
-		internal.Write(fmt.Sprintf(" <fg=yellow>*</> %s", item), true)
+		styledprinter.Write(fmt.Sprintf(" <fg=yellow>*</> %s", item), true)
 	}
 }
 
@@ -77,59 +76,45 @@ func Table(headers []string, rows [][]string) {
 
 // NewLine function
 func NewLine() {
-	internal.Write("", true)
+	styledprinter.Write("", true)
 }
 
 // NewLines function
 func NewLines(newLineCount int) {
 	if newLineCount > 0 {
-		internal.Write(strings.Repeat("\n", newLineCount-1), true)
+		styledprinter.Write(strings.Repeat("\n", newLineCount-1), true)
 	}
 }
 
-// ProgressStart starts a progress bar of a given duration
-func ProgressStart(totalSteps int) {
-	helpers.ProgressStart(totalSteps)
-}
-
-// ProgressAdvance advances the current progress bar of a given stepCount. If there is no progressBar it does nothing
-func ProgressAdvance(stepCount int) {
-	helpers.ProgressAdvance(stepCount)
-}
-
-// ProgressFinish finishes the current progress bar. If there is no progressBar it does nothing
-func ProgressFinish() {
-	helpers.ProgressFinish()
-}
-
-// Ask function
-func Ask(question string, validator func(string) bool) (string, error) {
-	q := helpers.Question{
-		Label:         question,
+// Prompts a question with the given label.
+// A function can be given to ensure the validity of the response. To allow any response (even empty), put nil as validator
+func Ask(label string, validator func(string) bool) (string, error) {
+	q := question{
+		Label:         label,
 		IsClosed:      false,
 		IsHidden:      false,
 		DefaultAnswer: "",
 		Validator:     validator,
 	}
 
-	res, err := helpers.AskQuestion(q)
+	res, err := askQuestion(q)
 	if err != nil {
 		return "", err
 	}
 	return res, nil
 }
 
-// AskWithDefault function
-func AskWithDefault(question string, defaultAnswer string, validator func(string) bool) (string, error) {
-	q := helpers.Question{
-		Label:         question,
+// Same as Ask() but the characters typed by the user are not printed in the stdout, in a linux-style password prompt
+func AskWithDefault(label string, defaultAnswer string, validator func(string) bool) (string, error) {
+	q := question{
+		Label:         label,
 		IsClosed:      false,
 		IsHidden:      false,
 		DefaultAnswer: defaultAnswer,
 		Validator:     validator,
 	}
 
-	res, err := helpers.AskQuestion(q)
+	res, err := askQuestion(q)
 	if err != nil {
 		return "", err
 	}
@@ -137,16 +122,16 @@ func AskWithDefault(question string, defaultAnswer string, validator func(string
 }
 
 // AskHidden function
-func AskHidden(question string, validator func(string) bool) (string, error) {
-	q := helpers.Question{
-		Label:         question,
+func AskHidden(label string, validator func(string) bool) (string, error) {
+	q := question{
+		Label:         label,
 		IsClosed:      false,
 		IsHidden:      true,
 		DefaultAnswer: "",
 		Validator:     validator,
 	}
 
-	res, err := helpers.AskQuestion(q)
+	res, err := askQuestion(q)
 	if err != nil {
 		return "", err
 	}
@@ -154,25 +139,25 @@ func AskHidden(question string, validator func(string) bool) (string, error) {
 }
 
 // Confirm function
-func Confirm(question string) (bool, error) {
-	return helpers.AskConfirm(question, nil)
+func Confirm(label string) (bool, error) {
+	return askConfirm(label, nil)
 }
 
 // ConfirmWithDefault function
-func ConfirmWithDefault(question string, defaultAnswer bool) (bool, error) {
-	return helpers.AskConfirm(question, &defaultAnswer)
+func ConfirmWithDefault(label string, defaultAnswer bool) (bool, error) {
+	return askConfirm(label, &defaultAnswer)
 }
 
 // Choice function
-func Choice(question string, choices []string) (string, error) {
-	q := helpers.Question{
-		Label:         question,
+func Choice(label string, choices []string) (string, error) {
+	q := question{
+		Label:         label,
 		IsClosed:      true,
 		Choices:       choices,
 		DefaultChoice: -1,
 	}
 
-	choice, err := helpers.AskQuestion(q)
+	choice, err := askQuestion(q)
 	if err != nil {
 		fmt.Printf("error: %s", err)
 		return "", err
@@ -182,15 +167,15 @@ func Choice(question string, choices []string) (string, error) {
 }
 
 // ChoiceWithDefault function
-func ChoiceWithDefault(question string, choices []string, defaultAnswer int) (string, error) {
-	q := helpers.Question{
-		Label:         question,
+func ChoiceWithDefault(label string, choices []string, defaultAnswer int) (string, error) {
+	q := question{
+		Label:         label,
 		IsClosed:      true,
 		Choices:       choices,
 		DefaultChoice: defaultAnswer,
 	}
 
-	choice, err := helpers.AskQuestion(q)
+	choice, err := askQuestion(q)
 	if err != nil {
 		fmt.Printf("error: %s", err)
 		return "", err
@@ -201,15 +186,15 @@ func ChoiceWithDefault(question string, choices []string, defaultAnswer int) (st
 
 // Success function
 func Success(content string) {
-	internal.WriteBlock(fmt.Sprintf("Success:\n%s", content), "  ", "bg=green;fg=black", true)
+	styledprinter.WriteBlock(fmt.Sprintf("Success:\n%s", content), "  ", "bg=green;fg=black", true)
 }
 
 // Warning function
 func Warning(content string) {
-	internal.WriteBlock(fmt.Sprintf("Warning:\n%s", content), "# ", "fg=yellow", true)
+	styledprinter.WriteBlock(fmt.Sprintf("Warning:\n%s", content), "# ", "fg=yellow", true)
 }
 
 // Error function
 func Error(content string) {
-	internal.WriteBlock(fmt.Sprintf("Error:\n%s", content), "  ", "bg=red;fg=black", true)
+	styledprinter.WriteBlock(fmt.Sprintf("Error:\n%s", content), "  ", "bg=red;fg=black", true)
 }
