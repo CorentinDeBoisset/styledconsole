@@ -1,31 +1,31 @@
 # StyledConsole
 
-Helper functions to pretty-print messages in a terminal.
+💅⚡️🖥
+
+Make your GUI tools user-friendly with methods to pretty-print text, lists, tables, user prompts, progress bars...
 
 This project is heavily inspired on the awesome php helper [SymfonyStyle from SensioLabs](https://symfony.com/doc/current/console/style.html).
 
-Full documentation is available [here](https://pkg.go.dev/github.com/corentindeboisset/styledconsole)
 
-# Installation
+## ❯ Install
 
 Simply run:
 
     go get github.com/corentindeboisset/styledconsole
 
-# Contrubuting
+## ❯ Usage
 
-If you want to open an MR, be sure to run the tests with:
+<img src="https://github.com/corentindeboisset/styledconsole/raw/master/assets/prompts.svg" alt="example of some styledconsole terminal prompts" />
 
-    golangci-lint run
-    go test ./...
+<img src="https://github.com/corentindeboisset/styledconsole/raw/master/assets/progress.svg" alt="example of a styledconsole progress bar" />
 
-If you want to run all these tests automatically before every commit, add the custom git-hooks with:
+<img src="https://github.com/corentindeboisset/styledconsole/raw/master/assets/texts.svg" alt="example of styledconsole formatted texts" />
 
-    git config core.hooksPath .githooks
+<img src="https://github.com/corentindeboisset/styledconsole/raw/master/assets/structs.svg" alt="example of styledconsole structured data display" />
 
-# Usage
+See the full usage documentation [here](https://pkg.go.dev/github.com/corentindeboisset/styledconsole).
 
-## Styling tags
+## ❯ About styling tags
 
 Any text can be augmented with style, by enclosing the text with tags like this:
 
@@ -62,3 +62,14 @@ The available colors are the standard ANSI set:
 * cyan
 * white
 * default (use the terminal's default)
+
+## ❯ Contrubuting
+
+If you want to open an MR, be sure to run the tests with:
+
+    golangci-lint run
+    go test ./...
+
+If you want to run all these tests automatically before every commit, add the custom git-hooks with:
+
+    git config core.hooksPath .githooks

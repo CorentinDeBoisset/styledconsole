@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="terminal" baseProfile="full" viewBox="0 0 520 172" width="520" version="1.1">
+    <defs>
+        <termtosvg:template_settings xmlns:termtosvg="https://github.com/nbedos/termtosvg">
+            <termtosvg:screen_geometry columns="65" rows="10"/>
+            <termtosvg:animation type="css"/>
+        </termtosvg:template_settings>
+        <style type="text/css" id="generated-style"><![CDATA[#screen {
+                font-family: 'DejaVu Sans Mono', monospace;
+                font-style: normal;
+                font-size: 14px;
+            }
+
+        text {
+            dominant-baseline: text-before-edge;
+            white-space: pre;
+        }
+    
+            :root {
+                --animation-duration: 2816ms;
+            }
+
+            @keyframes roll {
+                0.000%{transform:translateY(0px)}
+3.622%{transform:translateY(-204px)}
+7.351%{transform:translateY(-408px)}
+10.938%{transform:translateY(-612px)}
+14.702%{transform:translateY(-816px)}
+18.253%{transform:translateY(-1020px)}
+22.017%{transform:translateY(-1224px)}
+25.710%{transform:translateY(-1428px)}
+29.403%{transform:translateY(-1632px)}
+33.097%{transform:translateY(-1836px)}
+36.825%{transform:translateY(-2040px)}
+40.412%{transform:translateY(-2244px)}
+44.141%{transform:translateY(-2448px)}
+47.869%{transform:translateY(-2652px)}
+51.527%{transform:translateY(-2856px)}
+55.256%{transform:translateY(-3060px)}
+58.842%{transform:translateY(-3264px)}
+62.500%{transform:translateY(-3468px)}
+64.489%{transform:translateY(-3672px)}
+100.000%{transform:translateY(-3672px)}
+            }
+
+            #screen_view {
+                animation-duration: 2816ms;
+                animation-iteration-count:infinite;
+                animation-name:roll;
+                animation-timing-function: steps(1,end);
+                animation-fill-mode: forwards;
+            }
+        ]]></style>
+        <style type="text/css" id="user-style">
+            /* The colors defined below are the default 16 colors used for rendering text of the terminal. Adjust
+               them as needed.
+               PowerShell colors based on https://en.wikipedia.org/wiki/ANSI_escape_code#Colors */
+            .foreground {fill: #cccccc;}
+            .background {fill: #0c0c0c;}
+            .color0 {fill: #0c0c0c;}
+            .color1 {fill: #c50f1f;}
+            .color2 {fill: #13a10e;}
+            .color3 {fill: #c19c00;}
+            .color4 {fill: #0037da;}
+            .color5 {fill: #881798;}
+            .color6 {fill: #3a96dd;}
+            .color7 {fill: #cccccc;}
+            .color8 {fill: #767676;}
+            .color9 {fill: #e74856;}
+            .color10 {fill: #16c60c;}
+            .color11 {fill: #f9f1a5;}
+            .color12 {fill: #3b78ff;}
+            .color13 {fill: #b4009e;}
+            .color14 {fill: #61d6d6;}
+            .color15 {fill: #f2f2f2;}
+        </style>
+    </defs>
+    <svg id="screen" width="520" height="170" viewBox="0 0 520 170" preserveAspectRatio="xMidYMin slice">
+    <rect class="background" height="100%" width="100%" x="0" y="0"/><defs><g id="g1"><text x="0" textLength="520" font-weight="bold" class="color11">Progress bar commands                                            </text></g><g id="g2"><text x="0" textLength="520" font-weight="bold" class="color11">=====================                                            </text></g><g id="g3"><text x="0" textLength="520" class="foreground">Starting a long task...                                          </text></g><g id="g4"><text x="0" textLength="296" class="foreground">  0  /300 [&gt;-------------------]   0%</text><text x="296" textLength="8" class="background"> </text></g><g id="g5"><text x="0" textLength="296" class="foreground">  18 /300 [=&gt;------------------]   6%</text><text x="296" textLength="8" class="background"> </text></g><g id="g6"><text x="0" textLength="296" class="foreground">  36 /300 [==&gt;-----------------]  12%</text><text x="296" textLength="8" class="background"> </text></g><g id="g7"><text x="0" textLength="296" class="foreground">  53 /300 [===&gt;----------------]  17%</text><text x="296" textLength="8" class="background"> </text></g><g id="g8"><text x="0" textLength="296" class="foreground">  71 /300 [====&gt;---------------]  23%</text><text x="296" textLength="8" class="background"> </text></g><g id="g9"><text x="0" textLength="296" class="foreground">  87 /300 [======&gt;-------------]  28%</text><text x="296" textLength="8" class="background"> </text></g><g id="g10"><text x="0" textLength="296" class="foreground">  104/300 [=======&gt;------------]  34%</text><text x="296" textLength="8" class="background"> </text></g><g id="g11"><text x="0" textLength="296" class="foreground">  121/300 [========&gt;-----------]  40%</text><text x="296" textLength="8" class="background"> </text></g><g id="g12"><text x="0" textLength="296" class="foreground">  138/300 [=========&gt;----------]  46%</text><text x="296" textLength="8" class="background"> </text></g><g id="g13"><text x="0" textLength="296" class="foreground">  155/300 [==========&gt;---------]  51%</text><text x="296" textLength="8" class="background"> </text></g><g id="g14"><text x="0" textLength="296" class="foreground">  172/300 [===========&gt;--------]  57%</text><text x="296" textLength="8" class="background"> </text></g><g id="g15"><text x="0" textLength="296" class="foreground">  188/300 [============&gt;-------]  62%</text><text x="296" textLength="8" class="background"> </text></g><g id="g16"><text x="0" textLength="296" class="foreground">  205/300 [=============&gt;------]  68%</text><text x="296" textLength="8" class="background"> </text></g><g id="g17"><text x="0" textLength="296" class="foreground">  222/300 [==============&gt;-----]  74%</text><text x="296" textLength="8" class="background"> </text></g><g id="g18"><text x="0" textLength="296" class="foreground">  239/300 [===============&gt;----]  79%</text><text x="296" textLength="8" class="background"> </text></g><g id="g19"><text x="0" textLength="296" class="foreground">  256/300 [================&gt;---]  85%</text><text x="296" textLength="8" class="background"> </text></g><g id="g20"><text x="0" textLength="296" class="foreground">  273/300 [=================&gt;--]  91%</text><text x="296" textLength="8" class="background"> </text></g><g id="g21"><text x="0" textLength="296" class="foreground">  290/300 [==================&gt;-]  96%</text><text x="296" textLength="8" class="background"> </text></g><g id="g22"><text x="0" textLength="296" class="foreground">  300/300 [===================&gt;] 100%</text></g><g id="g23"><text x="0" textLength="520" class="foreground">                                                                 </text></g><g id="g24"><text x="0" textLength="520" class="foreground">Done !                                                           </text></g><g id="g25"><text x="0" textLength="8" class="background"> </text></g></defs><g id="screen_view"><g><use xlink:href="#g1" y="0"/><use xlink:href="#g2" y="17"/><use xlink:href="#g3" y="51"/><rect x="296" y="85" width="8" height="17" class="foreground"/><use xlink:href="#g4" y="85"/></g><g><use xlink:href="#g1" y="204"/><use xlink:href="#g2" y="221"/><use xlink:href="#g3" y="255"/><rect x="296" y="289" width="8" height="17" class="foreground"/><use xlink:href="#g5" y="289"/></g><g><use xlink:href="#g1" y="408"/><use xlink:href="#g2" y="425"/><use xlink:href="#g3" y="459"/><rect x="296" y="493" width="8" height="17" class="foreground"/><use xlink:href="#g6" y="493"/></g><g><use xlink:href="#g1" y="612"/><use xlink:href="#g2" y="629"/><use xlink:href="#g3" y="663"/><rect x="296" y="697" width="8" height="17" class="foreground"/><use xlink:href="#g7" y="697"/></g><g><use xlink:href="#g1" y="816"/><use xlink:href="#g2" y="833"/><use xlink:href="#g3" y="867"/><rect x="296" y="901" width="8" height="17" class="foreground"/><use xlink:href="#g8" y="901"/></g><g><use xlink:href="#g1" y="1020"/><use xlink:href="#g2" y="1037"/><use xlink:href="#g3" y="1071"/><rect x="296" y="1105" width="8" height="17" class="foreground"/><use xlink:href="#g9" y="1105"/></g><g><use xlink:href="#g1" y="1224"/><use xlink:href="#g2" y="1241"/><use xlink:href="#g3" y="1275"/><rect x="296" y="1309" width="8" height="17" class="foreground"/><use xlink:href="#g10" y="1309"/></g><g><use xlink:href="#g1" y="1428"/><use xlink:href="#g2" y="1445"/><use xlink:href="#g3" y="1479"/><rect x="296" y="1513" width="8" height="17" class="foreground"/><use xlink:href="#g11" y="1513"/></g><g><use xlink:href="#g1" y="1632"/><use xlink:href="#g2" y="1649"/><use xlink:href="#g3" y="1683"/><rect x="296" y="1717" width="8" height="17" class="foreground"/><use xlink:href="#g12" y="1717"/></g><g><use xlink:href="#g1" y="1836"/><use xlink:href="#g2" y="1853"/><use xlink:href="#g3" y="1887"/><rect x="296" y="1921" width="8" height="17" class="foreground"/><use xlink:href="#g13" y="1921"/></g><g><use xlink:href="#g1" y="2040"/><use xlink:href="#g2" y="2057"/><use xlink:href="#g3" y="2091"/><rect x="296" y="2125" width="8" height="17" class="foreground"/><use xlink:href="#g14" y="2125"/></g><g><use xlink:href="#g1" y="2244"/><use xlink:href="#g2" y="2261"/><use xlink:href="#g3" y="2295"/><rect x="296" y="2329" width="8" height="17" class="foreground"/><use xlink:href="#g15" y="2329"/></g><g><use xlink:href="#g1" y="2448"/><use xlink:href="#g2" y="2465"/><use xlink:href="#g3" y="2499"/><rect x="296" y="2533" width="8" height="17" class="foreground"/><use xlink:href="#g16" y="2533"/></g><g><use xlink:href="#g1" y="2652"/><use xlink:href="#g2" y="2669"/><use xlink:href="#g3" y="2703"/><rect x="296" y="2737" width="8" height="17" class="foreground"/><use xlink:href="#g17" y="2737"/></g><g><use xlink:href="#g1" y="2856"/><use xlink:href="#g2" y="2873"/><use xlink:href="#g3" y="2907"/><rect x="296" y="2941" width="8" height="17" class="foreground"/><use xlink:href="#g18" y="2941"/></g><g><use xlink:href="#g1" y="3060"/><use xlink:href="#g2" y="3077"/><use xlink:href="#g3" y="3111"/><rect x="296" y="3145" width="8" height="17" class="foreground"/><use xlink:href="#g19" y="3145"/></g><g><use xlink:href="#g1" y="3264"/><use xlink:href="#g2" y="3281"/><use xlink:href="#g3" y="3315"/><rect x="296" y="3349" width="8" height="17" class="foreground"/><use xlink:href="#g20" y="3349"/></g><g><use xlink:href="#g1" y="3468"/><use xlink:href="#g2" y="3485"/><use xlink:href="#g3" y="3519"/><rect x="296" y="3553" width="8" height="17" class="foreground"/><use xlink:href="#g21" y="3553"/></g><g><use xlink:href="#g1" y="3672"/><use xlink:href="#g2" y="3689"/><use xlink:href="#g3" y="3723"/><use xlink:href="#g22" y="3757"/><use xlink:href="#g23" y="3774"/><use xlink:href="#g24" y="3791"/><rect x="0" y="3825" width="8" height="17" class="foreground"/><use xlink:href="#g25" y="3825"/></g></g></svg>
+</svg>

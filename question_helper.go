@@ -112,7 +112,7 @@ func askClosedQuestion(q question) (string, error) {
 	hideCursor()
 	for selectedIndex == -1 {
 		clearWindowFromCursor()
-		fmt.Printf(" %s:", greenStyle.Apply(q.Label))
+		fmt.Printf("%s:", greenStyle.Apply(q.Label))
 
 		// Print the first line, either the first choice or a "↑"
 		if scroll > 0 {
