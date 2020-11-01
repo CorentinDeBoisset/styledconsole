@@ -15,13 +15,7 @@ Simply run:
 
 ## ❯ Usage
 
-<img src="https://github.com/corentindeboisset/styledconsole/raw/master/assets/prompts.svg" alt="example of some styledconsole terminal prompts" />
-
-<img src="https://github.com/corentindeboisset/styledconsole/raw/master/assets/progress.svg" alt="example of a styledconsole progress bar" />
-
-<img src="https://github.com/corentindeboisset/styledconsole/raw/master/assets/texts.svg" alt="example of styledconsole formatted texts" />
-
-<img src="https://github.com/corentindeboisset/styledconsole/raw/master/assets/structs.svg" alt="example of styledconsole structured data display" />
+<img src="https://github.com/corentindeboisset/styledconsole/raw/master/assets/demo.svg" alt="example of styledconsole usage in a terminal" />
 
 See the full usage documentation [here](https://pkg.go.dev/github.com/corentindeboisset/styledconsole).
 
