@@ -1,3 +1,4 @@
+// Package styledprinter helps to do some pretty-printing of text in terminal using ANSI escape sequences
 package styledprinter
 
 import (

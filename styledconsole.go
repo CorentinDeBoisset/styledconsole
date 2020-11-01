@@ -1,4 +1,4 @@
-// Helper functions to pretty-print messages in a terminal.
+// Package styledconsole helps to make your GUI tools user-friendly with methods to pretty-print text, lists, tables, user prompts, progress bars...
 package styledconsole
 
 import (
