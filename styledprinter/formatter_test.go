@@ -18,10 +18,10 @@ func TestGetSubstring(t *testing.T) {
 func TestEscapeTrailingBackslash(t *testing.T) {
 	assert := assert.New(t)
 
-	assert.Equal("noop", EscapeTrailingBackslash("noop"))
-	assert.Equal("super super\x00\x00", EscapeTrailingBackslash("super super\\\\"))
-	assert.Equal("super \x00 soupaire \x00 awesome \x00", EscapeTrailingBackslash("super \x00 soupaire \x00 awesome \x00"))
-	assert.Equal("super \x00 soupaire \x00 awesome \x00\x00\x00", EscapeTrailingBackslash("super \x00 soupaire \x00 awesome \x00\\\\"))
+	assert.Equal("noop", escapeTrailingBackslash("noop"))
+	assert.Equal("super super\x00\x00", escapeTrailingBackslash("super super\\\\"))
+	assert.Equal("super \x00 soupaire \x00 awesome \x00", escapeTrailingBackslash("super \x00 soupaire \x00 awesome \x00"))
+	assert.Equal("super \x00 soupaire \x00 awesome \x00\x00\x00", escapeTrailingBackslash("super \x00 soupaire \x00 awesome \x00\\\\"))
 }
 
 // TestFormatWithStyleWithoutTextBefore checks there are no errors of newline

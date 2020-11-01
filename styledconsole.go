@@ -8,7 +8,7 @@ import (
 	"github.com/corentindeboisset/styledconsole/styledprinter"
 )
 
-// Section prints a section title
+// Section displays the given string as the title of some command section.
 func Section(title string) {
 	titleLen := len(title)
 	underline := strings.Repeat("=", titleLen)
@@ -16,19 +16,20 @@ func Section(title string) {
 	styledprinter.Write(fmt.Sprintf("<fg=yellow;options=bold>%s\n%s\n</>", title, underline), true)
 }
 
-// Text function
+// Text displays the given string as regular text. This is useful to render help messages and instructions for the user running the command.
+// This methods support style tags such as "<fg=blue>blue text</>".
 func Text(content string) {
 	styledprinter.Write(content, true)
 }
 
-// Listing function
+// Listing displays an list of elements
 func Listing(items []string) {
 	for _, item := range items {
 		styledprinter.Write(fmt.Sprintf(" <fg=yellow>*</> %s", item), true)
 	}
 }
 
-// Table pretty-prints a table with headers. It does not support multiline cells or sytling
+// Table pretty-prints a table with headers. It does not support multiline cells or sytling.
 func Table(headers []string, rows [][]string) {
 	// First we have to determinate the width of every column
 	var columnWidths []int
@@ -74,20 +75,20 @@ func Table(headers []string, rows [][]string) {
 	fmt.Printf("%s\n", strings.Join(lines, "\n"))
 }
 
-// NewLine function
+// NewLine prints a line break.
 func NewLine() {
 	styledprinter.Write("", true)
 }
 
-// NewLines function
+// NewLines print the given amount of new breaks.
 func NewLines(newLineCount int) {
 	if newLineCount > 0 {
 		styledprinter.Write(strings.Repeat("\n", newLineCount-1), true)
 	}
 }
 
-// Prompts a question with the given label.
-// A function can be given to ensure the validity of the response. To allow any response (even empty), put nil as validator
+// Ask prompts a question with the given label.
+// A function can be given to ensure the validity of the response. To allow any response (even empty), put nil as validator.
 func Ask(label string, validator func(string) bool) (string, error) {
 	q := question{
 		Label:         label,
@@ -104,7 +105,7 @@ func Ask(label string, validator func(string) bool) (string, error) {
 	return res, nil
 }
 
-// Same as Ask() but the characters typed by the user are not printed in the stdout, in a linux-style password prompt
+// Same as Ask() but if the user's answer is empty, the given defaultAnswer is chosen instead.
 func AskWithDefault(label string, defaultAnswer string, validator func(string) bool) (string, error) {
 	q := question{
 		Label:         label,
@@ -121,7 +122,7 @@ func AskWithDefault(label string, defaultAnswer string, validator func(string) b
 	return res, nil
 }
 
-// AskHidden function
+// Same as Ask() but the characters typed by the user are not printed in the output, in a linux-style password prompt.
 func AskHidden(label string, validator func(string) bool) (string, error) {
 	q := question{
 		Label:         label,
@@ -138,17 +139,18 @@ func AskHidden(label string, validator func(string) bool) (string, error) {
 	return res, nil
 }
 
-// Confirm function
+// Confirm prompts a yes/no question.
 func Confirm(label string) (bool, error) {
 	return askConfirm(label, nil)
 }
 
-// ConfirmWithDefault function
+// ConfirmWithDefault prompts a yes/no question, with a given answer by default if the user's answer is empty.
 func ConfirmWithDefault(label string, defaultAnswer bool) (bool, error) {
 	return askConfirm(label, &defaultAnswer)
 }
 
-// Choice function
+// Choice prints a list of choices the user can choose between.
+// The prompts adapts itself to the size of the terminal.
 func Choice(label string, choices []string) (string, error) {
 	q := question{
 		Label:         label,
@@ -166,7 +168,7 @@ func Choice(label string, choices []string) (string, error) {
 	return choice, nil
 }
 
-// ChoiceWithDefault function
+// ChoiceWithDefault is the same as Choice() but a specific answer index should be given to highlight by default.
 func ChoiceWithDefault(label string, choices []string, defaultAnswer int) (string, error) {
 	q := question{
 		Label:         label,
@@ -184,17 +186,17 @@ func ChoiceWithDefault(label string, choices []string, defaultAnswer int) (strin
 	return choice, nil
 }
 
-// Success function
+// Success displays the given string highlighted as a successful message (with a green background and an [OK] label).
 func Success(content string) {
 	styledprinter.WriteBlock(fmt.Sprintf("Success:\n%s", content), "  ", "bg=green;fg=black", true)
 }
 
-// Warning function
+// Warning displays the given string highlighted as a warning message (with yellow text and a [Warning] label).
 func Warning(content string) {
 	styledprinter.WriteBlock(fmt.Sprintf("Warning:\n%s", content), "# ", "fg=yellow", true)
 }
 
-// Error function
+// Error displays the given string highlighted as an error message (with a red background and the [Error] label).
 func Error(content string) {
 	styledprinter.WriteBlock(fmt.Sprintf("Error:\n%s", content), "  ", "bg=red;fg=black", true)
 }

@@ -45,8 +45,7 @@ var (
 	separatorRegexp = regexp.MustCompile(`([^,;]+)`)
 )
 
-// OutputStyle contains the required data to print special text on the console
-// They reference the available styles juste above
+// OutputStyle is a structure that can add ANSI codes on a string from a legible style string.
 type OutputStyle struct {
 	foreground           string
 	background           string
@@ -55,6 +54,7 @@ type OutputStyle struct {
 	options              map[string]bool
 }
 
+// NewOutputStyle instanciates an OutputStyle struct from a style string.
 func NewOutputStyle(styleString string) *OutputStyle {
 	styleMatches := styleRegexp.FindAllSubmatchIndex([]byte(styleString), -1)
 	if len(styleMatches) == 0 {
@@ -102,7 +102,7 @@ func NewOutputStyle(styleString string) *OutputStyle {
 	}
 }
 
-// Apply surrounds a given string with the adequate escape sequence
+// Apply surrounds a given string with the adequate ANSI escape sequence.
 func (s OutputStyle) Apply(text string) string {
 	var setCodes []string
 	var unsetCodes []string

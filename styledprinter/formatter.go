@@ -7,18 +7,19 @@ import (
 )
 
 var (
-	escapeRegexp  = regexp.MustCompile(`[^\\]?<`)
+	// escapeRegexp  = regexp.MustCompile(`[^\\]?<`)
 	tagRegexp     = regexp.MustCompile(`(?i)<([a-z][^<>]*|/([a-z][^<>]*)?)>`)
 	lineEndRegexp = regexp.MustCompile(` *(\r?\n)`)
 )
 
-// Escape will prepend all '<' with a backslash
-func Escape(text string) string {
-	return escapeRegexp.ReplaceAllString(text, `$1\<`)
-}
+// escape will prepend all '<' with a backslash
+// func escape(text string) string {
+// 	return escapeRegexp.ReplaceAllString(text, `$1\<`)
+// }
 
-// EscapeTrailingBackslash removes any trailing backslashes while keeping the length of the string
-func EscapeTrailingBackslash(text string) string {
+// escapeTrailingBackslash removes any trailing backslashes while keeping the length of the string
+// FIXME: this function is not used, should it be removed?
+func escapeTrailingBackslash(text string) string {
 	textLen := len(text)
 	if textLen > 0 && text[textLen-1:] == `\` {
 		newText := strings.TrimRight(text, `\`)
