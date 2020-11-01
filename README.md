@@ -15,7 +15,9 @@ Simply run:
 
 ## ❯ Usage
 
-<img src="https://github.com/corentindeboisset/styledconsole/raw/master/assets/demo.svg" alt="example of styledconsole usage in a terminal" />
+<p align="center">
+    <img src="https://github.com/corentindeboisset/styledconsole/raw/master/assets/demo.svg" alt="example of styledconsole usage in a terminal" />
+</p>
 
 See the full usage documentation [here](https://pkg.go.dev/github.com/corentindeboisset/styledconsole).
 
