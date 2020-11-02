@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"syscall"
@@ -30,35 +31,34 @@ func askQuestion(q question) (string, error) {
 
 		return ret, nil
 	} else if !q.IsClosed {
-		if q.IsHidden {
-			for {
-				ret, err := askHiddenQuestion(q)
-				if err != nil {
-					return "", err
-				}
-				if q.Validator == nil || q.Validator(ret) {
-					return ret, nil
-				} else {
-					fmt.Printf("%s\n", redStyle.Apply("This answer is invalid."))
-				}
+		var ret string
+		var err error
+		for {
+			if q.IsHidden {
+				ret, err = askHiddenQuestion(q)
+			} else {
+				ret, err = askRegularQuestion(q)
 			}
-		} else {
-			for {
-				ret, err := askRegularQuestion(q)
-				if err != nil {
-					return "", err
-				}
-				if q.Validator == nil || q.Validator(ret) {
+
+			if err != nil {
+				if err == io.EOF && (q.Validator == nil || q.Validator(ret)) {
+					// Handle empty buffer gracefully if possible
 					return ret, nil
-				} else {
-					fmt.Printf("%s\n", redStyle.Apply("This answer is invalid."))
 				}
+
+				return "", err
+			}
+
+			if q.Validator == nil || q.Validator(ret) {
+				return ret, nil
+			} else {
+				fmt.Printf("%s\n", redStyle.Apply("This answer is invalid."))
 			}
 		}
 	}
 
 	// Invalid question, empty answer.
-	// This results from an error of implementation and should never happen
+	// This results from an error of implementation in the library and should never happen
 	return "", errors.New("The question object is invalid")
 }
 
@@ -97,7 +97,7 @@ func askClosedQuestion(q question) (string, error) {
 	highlightedIndex := 0
 	scroll := 0
 
-	if q.DefaultChoice > 0 && q.DefaultChoice < choiceCount-1 {
+	if q.DefaultChoice >= 0 && q.DefaultChoice < choiceCount-1 {
 		// Set the default answer, and adapt the initial scrolling
 		highlightedIndex = q.DefaultChoice
 		if highlightedIndex > scrollWindowHeight {
@@ -145,6 +145,10 @@ func askClosedQuestion(q question) (string, error) {
 			scrollWindowHeight = getScrollWindowHeight(choiceCount, height)
 
 			if err != nil {
+				if err == io.EOF && q.DefaultChoice >= 0 && q.DefaultChoice < choiceCount-1 {
+					return q.Choices[q.DefaultChoice], nil
+				}
+
 				return "", fmt.Errorf("There was an error reading user input (%s)", err)
 			}
 			if numRead == 3 && bytes[0] == '\033' && bytes[1] == 91 {
@@ -218,6 +222,10 @@ func askHiddenQuestion(q question) (string, error) {
 	fmt.Print("\n")
 
 	if err != nil {
+		if err == io.EOF {
+			return string(answerBytes), err
+		}
+
 		return "", fmt.Errorf("There was an error reading the stdin (%s)", err)
 	}
 
@@ -241,7 +249,11 @@ func askRegularQuestion(q question) (string, error) {
 	answer, err := reader.ReadString('\n')
 
 	if err != nil {
-		return "", fmt.Errorf("There was an error reading the stdin (%s)", err)
+		if err == io.EOF {
+			return answer, err
+		}
+
+		return answer, fmt.Errorf("There was an error reading the stdin (%s)", err)
 	}
 
 	if answer == "\n" && q.DefaultAnswer != "" {

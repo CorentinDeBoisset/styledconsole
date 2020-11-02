@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -32,6 +33,9 @@ func askConfirm(label string, defaultAnswer *bool) (bool, error) {
 		textAnswer, err := reader.ReadString('\n')
 
 		if err != nil {
+			if err == io.EOF && defaultAnswer != nil {
+				return *defaultAnswer, nil
+			}
 			return false, fmt.Errorf("There was an error reading the stdin (%s)", err)
 		}
 
