@@ -64,14 +64,31 @@ func askQuestion(q question) (string, error) {
 
 func askClosedQuestion(q question) (string, error) {
 	if !terminal.IsTerminal(int(os.Stdout.Fd())) {
-		return "", errors.New("Cannot open a prompt outside of a TTY")
+		return "", errors.New("Cannot open an interacive prompt outside of a TTY")
 	}
 
 	width, height := getWinsize()
 
+	oldState, err := terminal.MakeRaw(int(os.Stdout.Fd()))
+	if err != nil {
+		return "", fmt.Errorf("There was an error switching terminal to raw mode (%s)", err)
+	}
+
 	if height < 3 || width < 20 {
-		// TODO improve this behavior
-		return "", errors.New("Terminal is too small to prompt a question")
+		for {
+			fmt.Print("Terminal is too small... Resize and press a key.\n")
+			key, err := getKey()
+			if err != nil {
+				return "", fmt.Errorf("There was an error reading a character from stdin (%s)", err)
+			}
+
+			if key.KeyType == "EOF" {
+				// We skip and move on to the next step
+				break
+			}
+
+			width, height = getWinsize()
+		}
 	}
 
 	// Prepare the list of printable options
@@ -83,12 +100,6 @@ func askClosedQuestion(q question) (string, error) {
 			printableChoices = append(printableChoices, fmt.Sprintf("%s…", choice[:width-5]))
 		}
 	}
-
-	oldState, err := terminal.MakeRaw(int(os.Stdout.Fd()))
-	if err != nil {
-		return "", fmt.Errorf("There was an error switching terminal to raw mode (%s)", err)
-	}
-	reader := bufio.NewReader(os.Stdin)
 
 	// Run the display loop
 	selectedIndex := -1
@@ -137,70 +148,66 @@ func askClosedQuestion(q question) (string, error) {
 		fmt.Printf("\033[%dA\033[1000D", scrollWindowHeight+2)
 
 		for {
-			bytes := make([]byte, 3)
-			numRead, err := reader.Read(bytes)
+			typedKey, err := getKey()
 
 			// Re-parse the height in case the user resized their terminal
 			_, height = getWinsize()
 			scrollWindowHeight = getScrollWindowHeight(choiceCount, height)
 
-			if err != nil {
-				if err == io.EOF && q.DefaultChoice >= 0 && q.DefaultChoice < choiceCount-1 {
+			if err != nil || typedKey == nil {
+				return "", fmt.Errorf("There was an error reading user input (%s)", err)
+			}
+			if typedKey.KeyType == "EOF" {
+				if q.DefaultChoice >= 0 && q.DefaultChoice < choiceCount-1 {
 					return q.Choices[q.DefaultChoice], nil
 				}
 
-				return "", fmt.Errorf("There was an error reading user input (%s)", err)
+				return "", errors.New("Error parsing user activity from Stdin (EOF)")
 			}
-			if numRead == 3 && bytes[0] == '\033' && bytes[1] == 91 {
-				if bytes[2] == 65 {
-					// Up
-					if highlightedIndex == 0 {
-						highlightedIndex = choiceCount - 1
-						scroll = choiceCount - scrollWindowHeight - 2 // scroll to the bottom
-					} else {
-						highlightedIndex -= 1
-						// Update scrolling if necessary
-						if scroll >= highlightedIndex {
-							if highlightedIndex > 1 {
-								scroll = highlightedIndex - 1
-							} else {
-								scroll = 0
-							}
+
+			if typedKey.KeyType == "arrowKey" && typedKey.ArrowKey == '↑' {
+				// Up
+				if highlightedIndex == 0 {
+					highlightedIndex = choiceCount - 1
+					scroll = choiceCount - scrollWindowHeight - 2 // scroll to the bottom
+				} else {
+					highlightedIndex -= 1
+					// Update scrolling if necessary
+					if scroll >= highlightedIndex {
+						if highlightedIndex > 1 {
+							scroll = highlightedIndex - 1
+						} else {
+							scroll = 0
 						}
 					}
-					break
-				} else if bytes[2] == 66 {
-					// Down
-					if highlightedIndex == choiceCount-1 {
-						highlightedIndex = 0
-						scroll = 0 // scroll to the top
-					} else {
-						highlightedIndex += 1
-						// Update scrolling if necessary
-						if scroll <= highlightedIndex-scrollWindowHeight-1 {
-							if highlightedIndex < choiceCount-2 {
-								scroll = highlightedIndex - scrollWindowHeight
-							} else {
-								scroll = choiceCount - scrollWindowHeight - 2
-							}
-						}
-					}
-					break
 				}
-			} else if numRead == 1 && (bytes[0] == '\r' || bytes[0] == '\n' || bytes[0] == ' ') {
+				break
+			} else if typedKey.KeyType == "arrowKey" && typedKey.ArrowKey == '↓' {
+				// Down
+				if highlightedIndex == choiceCount-1 {
+					highlightedIndex = 0
+					scroll = 0 // scroll to the top
+				} else {
+					highlightedIndex += 1
+					// Update scrolling if necessary
+					if scroll <= highlightedIndex-scrollWindowHeight-1 {
+						if highlightedIndex < choiceCount-2 {
+							scroll = highlightedIndex - scrollWindowHeight
+						} else {
+							scroll = choiceCount - scrollWindowHeight - 2
+						}
+					}
+				}
+				break
+			} else if typedKey.KeyType == "char" && (typedKey.Character == '\r' || typedKey.Character == '\n' || typedKey.Character == ' ') {
 				selectedIndex = highlightedIndex
 				break
-			} else if numRead == 1 && bytes[0] == 3 {
+			} else if typedKey.KeyType == "char" && typedKey.Character == 3 {
 				// Ctrl-C
 				showCursor()
 				fmt.Printf("\033[%dB\033[1000D", scrollWindowHeight+3)
 				_ = terminal.Restore(int(os.Stdout.Fd()), oldState)
 				_ = syscall.Kill(syscall.Getpid(), syscall.SIGINT)
-			}
-
-			// unknown sequence, we reset the buffer and start the loop again
-			if reader.Buffered() > 0 {
-				_, _ = reader.Discard(reader.Buffered())
 			}
 		}
 	}

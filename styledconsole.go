@@ -161,7 +161,6 @@ func Choice(label string, choices []string) (string, error) {
 
 	choice, err := askQuestion(q)
 	if err != nil {
-		fmt.Printf("error: %s", err)
 		return "", err
 	}
 
