@@ -32,21 +32,10 @@ func Listing(items []string) {
 // Table pretty-prints a table with headers. It does not support multiline cells or sytling.
 func Table(headers []string, rows [][]string) {
 	// First we have to determinate the width of every column
-	var columnWidths []int
-	for _, headerItem := range headers {
-		columnWidths = append(columnWidths, len(headerItem))
-	}
-	for _, row := range rows {
-		for columnNb, rowItem := range row {
-			if columnNb < len(columnWidths) {
-				if columnWidths[columnNb] < len(rowItem) {
-					columnWidths[columnNb] = len(rowItem)
-				}
-			} else {
-				columnWidths = append(columnWidths, len(rowItem))
-			}
-		}
-	}
+	columnWidths := getColumnWidths(headers, rows)
+	termWidth, _ := getWinsize()
+
+	columnWidths = getAcceptableColumnWidths(columnWidths, termWidth)
 
 	// Prepare the row spearator
 	sectionSeparator := "+"
@@ -54,25 +43,16 @@ func Table(headers []string, rows [][]string) {
 		sectionSeparator += fmt.Sprintf("%s+", strings.Repeat("-", width+2))
 	}
 
-	var lines []string
-	lines = append(lines, sectionSeparator)
-	rowToPrint := "|"
-	for columnNb, headerItem := range headers {
-		rowToPrint += fmt.Sprintf(" %s%s |", headerItem, strings.Repeat(" ", columnWidths[columnNb]-len(headerItem)))
-	}
-	lines = append(lines, rowToPrint)
-	lines = append(lines, sectionSeparator)
-
+	var formattedRows []string
+	formattedRows = append(formattedRows, sectionSeparator)
+	formattedRows = append(formattedRows, formatOneRow(headers, columnWidths))
+	formattedRows = append(formattedRows, sectionSeparator)
 	for _, row := range rows {
-		rowToPrint = "|"
-		for columnNb, rowItem := range row {
-			rowToPrint += fmt.Sprintf(" %s%s |", rowItem, strings.Repeat(" ", columnWidths[columnNb]-len(rowItem)))
-		}
-		lines = append(lines, rowToPrint)
+		formattedRows = append(formattedRows, formatOneRow(row, columnWidths))
 	}
-	lines = append(lines, sectionSeparator)
+	formattedRows = append(formattedRows, sectionSeparator)
 
-	fmt.Printf("%s\n", strings.Join(lines, "\n"))
+	fmt.Printf("%s\n", strings.Join(formattedRows, "\n"))
 }
 
 // NewLine prints a line break.
