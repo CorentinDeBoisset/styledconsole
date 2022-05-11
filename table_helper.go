@@ -3,6 +3,7 @@ package styledconsole
 import (
 	"fmt"
 	"strings"
+	"unicode/utf8"
 )
 
 func getColumnWidths(headers []string, content [][]string) []int {
@@ -18,8 +19,9 @@ func getColumnWidths(headers []string, content [][]string) []int {
 	for i, headerItem := range headers {
 		itemWidth := 0
 		for _, line := range strings.Split(headerItem, "\n") {
-			if itemWidth < len(line) {
-				itemWidth = len(line)
+			lineLen := utf8.RuneCountInString(line)
+			if itemWidth < lineLen {
+				itemWidth = lineLen
 			}
 		}
 		columnWidths[i] = itemWidth
@@ -28,8 +30,9 @@ func getColumnWidths(headers []string, content [][]string) []int {
 		for i, rowItem := range row {
 			itemWidth := 0
 			for _, line := range strings.Split(rowItem, "\n") {
-				if itemWidth < len(line) {
-					itemWidth = len(line)
+				lineLen := utf8.RuneCountInString(line)
+				if itemWidth < lineLen {
+					itemWidth = lineLen
 				}
 			}
 			if columnWidths[i] < itemWidth {
@@ -103,12 +106,13 @@ func formatOneRow(row []string, columnWidths []int) string {
 	for cellIdx, cell := range row {
 		var preparedCellLines []string
 		for _, subLine := range strings.Split(cell, "\n") {
-			if len(subLine) <= columnWidths[cellIdx] {
+			subLineLen := utf8.RuneCountInString(subLine)
+			if subLineLen <= columnWidths[cellIdx] {
 				preparedCellLines = append(preparedCellLines, subLine)
 			} else {
 				i := 0
 				for {
-					if i+columnWidths[cellIdx] > len(subLine) {
+					if i+columnWidths[cellIdx] > subLineLen {
 						preparedCellLines = append(preparedCellLines, subLine[i:])
 						break
 					} else {
@@ -129,7 +133,8 @@ func formatOneRow(row []string, columnWidths []int) string {
 		rowToPrint := "|"
 		for columnIdx, column := range preparedSubLines {
 			if i < len(column) {
-				rowToPrint += fmt.Sprintf(" %s%s |", column[i], strings.Repeat(" ", columnWidths[columnIdx]-len(column[i])))
+				columnLen := utf8.RuneCountInString(column[i])
+				rowToPrint += fmt.Sprintf(" %s%s |", column[i], strings.Repeat(" ", columnWidths[columnIdx]-columnLen))
 			} else {
 				rowToPrint += fmt.Sprintf(" %s |", strings.Repeat(" ", columnWidths[columnIdx]))
 			}
