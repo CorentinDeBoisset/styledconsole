@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 var progressBarLength int = 19
@@ -25,7 +25,7 @@ func ProgressStart(totalSteps int) {
 	}
 
 	fmt.Printf("  %s", buildProgressBar(0, totalSteps))
-	if !terminal.IsTerminal(int(os.Stdout.Fd())) {
+	if !term.IsTerminal(int(os.Stdout.Fd())) {
 		fmt.Print("\n")
 	}
 
@@ -44,7 +44,7 @@ func ProgressAdvance(stepCount int) {
 
 	if progressDone+stepCount < progressTotalSteps {
 		progressDone += stepCount
-		if terminal.IsTerminal(int(os.Stdout.Fd())) {
+		if term.IsTerminal(int(os.Stdout.Fd())) {
 			if time.Since(lastPrintTime) > 1e8 {
 				// Do not refresh faster than 10fps, to avoid stdout-induced lag
 				fmt.Printf("\033[1000D  %s", buildProgressBar(progressDone, progressTotalSteps))
@@ -66,7 +66,7 @@ func ProgressFinish() {
 		return
 	}
 
-	if terminal.IsTerminal(int(os.Stdout.Fd())) {
+	if term.IsTerminal(int(os.Stdout.Fd())) {
 		fmt.Printf("\033[1000D  %s\n", buildProgressBar(progressTotalSteps, progressTotalSteps))
 	} else {
 		fmt.Printf("  %s\n", buildProgressBar(progressTotalSteps, progressTotalSteps))

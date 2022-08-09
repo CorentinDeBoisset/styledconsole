@@ -59,7 +59,7 @@ The available colors are the standard ANSI set:
 * white
 * default (use the terminal's default)
 
-## ❯ Contrubuting
+## ❯ Contributing
 
 If you want to open an MR, be sure to run the tests with:
 

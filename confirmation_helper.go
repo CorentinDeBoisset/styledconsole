@@ -8,11 +8,11 @@ import (
 	"os"
 	"strings"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 func askConfirm(label string, defaultAnswer *bool) (bool, error) {
-	if !terminal.IsTerminal(int(os.Stdout.Fd())) {
+	if !term.IsTerminal(int(os.Stdout.Fd())) {
 		return false, errors.New("Cannot open a prompt outside of a terminal")
 	}
 

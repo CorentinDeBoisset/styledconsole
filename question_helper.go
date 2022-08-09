@@ -9,7 +9,7 @@ import (
 	"strings"
 	"syscall"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 type question struct {
@@ -63,13 +63,13 @@ func askQuestion(q question) (string, error) {
 }
 
 func askClosedQuestion(q question) (string, error) {
-	if !terminal.IsTerminal(int(os.Stdout.Fd())) {
+	if !term.IsTerminal(int(os.Stdout.Fd())) {
 		return "", errors.New("Cannot open an interacive prompt outside of a TTY")
 	}
 
 	width, height := getWinsize()
 
-	oldState, err := terminal.MakeRaw(int(os.Stdout.Fd()))
+	oldState, err := term.MakeRaw(int(os.Stdout.Fd()))
 	if err != nil {
 		return "", fmt.Errorf("There was an error switching terminal to raw mode (%s)", err)
 	}
@@ -206,25 +206,25 @@ func askClosedQuestion(q question) (string, error) {
 				// Ctrl-C
 				showCursor()
 				fmt.Printf("\033[%dB\033[1000D", scrollWindowHeight+3)
-				_ = terminal.Restore(int(os.Stdout.Fd()), oldState)
+				_ = term.Restore(int(os.Stdout.Fd()), oldState)
 				_ = syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 			}
 		}
 	}
 	fmt.Printf("\033[%dB\033[1000D", scrollWindowHeight+3)
 	showCursor()
-	_ = terminal.Restore(int(os.Stdout.Fd()), oldState)
+	_ = term.Restore(int(os.Stdout.Fd()), oldState)
 
 	return q.Choices[selectedIndex], nil
 }
 
 func askHiddenQuestion(q question) (string, error) {
-	if !terminal.IsTerminal(int(os.Stdout.Fd())) {
+	if !term.IsTerminal(int(os.Stdout.Fd())) {
 		return "", errors.New("Cannot open a prompt outside of a terminal")
 	}
 
 	fmt.Printf("\n%s :\n > ", greenStyle.Apply(strings.TrimSpace(q.Label)))
-	answerBytes, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+	answerBytes, err := term.ReadPassword(int(os.Stdin.Fd()))
 	// The typed line break is hidden so we have to force it
 	fmt.Print("\n")
 
@@ -240,7 +240,7 @@ func askHiddenQuestion(q question) (string, error) {
 }
 
 func askRegularQuestion(q question) (string, error) {
-	if !terminal.IsTerminal(int(os.Stdout.Fd())) {
+	if !term.IsTerminal(int(os.Stdout.Fd())) {
 		return "", errors.New("Cannot open a prompt outside of a terminal")
 	}
 
