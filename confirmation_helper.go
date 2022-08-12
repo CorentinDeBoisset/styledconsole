@@ -27,7 +27,7 @@ func askConfirm(label string, defaultAnswer *bool) (bool, error) {
 		} else {
 			options = "y/n"
 		}
-		fmt.Printf(" %s [%s]:\n > ", greenStyle.Apply(strings.TrimSpace(label)), yellowStyle.Apply(options))
+		fmt.Printf("%s [%s]:\n > ", greenStyle.Apply(strings.TrimSpace(label)), yellowStyle.Apply(options))
 
 		reader := bufio.NewReader(os.Stdin)
 		textAnswer, err := reader.ReadString('\n')
