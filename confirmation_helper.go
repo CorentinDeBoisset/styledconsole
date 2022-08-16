@@ -13,7 +13,7 @@ import (
 
 func askConfirm(label string, defaultAnswer *bool) (bool, error) {
 	if !term.IsTerminal(int(os.Stdout.Fd())) {
-		return false, errors.New("Cannot open a prompt outside of a terminal")
+		return false, errors.New("cannot open a prompt outside of a terminal")
 	}
 
 	for {
@@ -27,7 +27,7 @@ func askConfirm(label string, defaultAnswer *bool) (bool, error) {
 		} else {
 			options = "y/n"
 		}
-		fmt.Printf("%s [%s]:\n > ", greenStyle.Apply(strings.TrimSpace(label)), yellowStyle.Apply(options))
+		fmt.Printf("%s [%s]: ", greenStyle.Apply(strings.TrimSpace(label)), yellowStyle.Apply(options))
 
 		reader := bufio.NewReader(os.Stdin)
 		textAnswer, err := reader.ReadString('\n')
@@ -36,7 +36,7 @@ func askConfirm(label string, defaultAnswer *bool) (bool, error) {
 			if err == io.EOF && defaultAnswer != nil {
 				return *defaultAnswer, nil
 			}
-			return false, fmt.Errorf("There was an error reading the stdin (%s)", err)
+			return false, fmt.Errorf("there was an error reading the stdin: %w", err)
 		}
 
 		if strings.ToLower(textAnswer) == "yes\n" || strings.ToLower(textAnswer) == "y\n" {

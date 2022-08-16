@@ -59,19 +59,19 @@ func askQuestion(q question) (string, error) {
 
 	// Invalid question, empty answer.
 	// This results from an error of implementation in the library and should never happen
-	return "", errors.New("The question object is invalid")
+	return "", errors.New("the question object is invalid")
 }
 
 func askClosedQuestion(q question) (string, error) {
 	if !term.IsTerminal(int(os.Stdout.Fd())) {
-		return "", errors.New("Cannot open an interacive prompt outside of a TTY")
+		return "", errors.New("cannot open an interacive prompt outside of a TTY")
 	}
 
 	width, height := getWinsize()
 
 	oldState, err := term.MakeRaw(int(os.Stdout.Fd()))
 	if err != nil {
-		return "", fmt.Errorf("There was an error switching terminal to raw mode (%s)", err)
+		return "", fmt.Errorf("there was an error switching terminal to raw mode: %w", err)
 	}
 
 	if height < 3 || width < 20 {
@@ -79,7 +79,7 @@ func askClosedQuestion(q question) (string, error) {
 			fmt.Print("Terminal is too small... Resize and press a key.\n")
 			key, err := getKey()
 			if err != nil {
-				return "", fmt.Errorf("There was an error reading a character from stdin (%s)", err)
+				return "", fmt.Errorf("there was an error reading a character from stdin: %w", err)
 			}
 
 			if key.KeyType == "EOF" {
@@ -155,14 +155,14 @@ func askClosedQuestion(q question) (string, error) {
 			scrollWindowHeight = getScrollWindowHeight(choiceCount, height)
 
 			if err != nil || typedKey == nil {
-				return "", fmt.Errorf("There was an error reading user input (%s)", err)
+				return "", fmt.Errorf("there was an error reading user input: %w", err)
 			}
 			if typedKey.KeyType == "EOF" {
 				if q.DefaultChoice >= 0 && q.DefaultChoice < choiceCount-1 {
 					return q.Choices[q.DefaultChoice], nil
 				}
 
-				return "", errors.New("Error parsing user activity from Stdin (EOF)")
+				return "", errors.New("error parsing user activity from Stdin (EOF)")
 			}
 
 			if typedKey.KeyType == "arrowKey" && typedKey.ArrowKey == '↑' {
@@ -220,7 +220,7 @@ func askClosedQuestion(q question) (string, error) {
 
 func askHiddenQuestion(q question) (string, error) {
 	if !term.IsTerminal(int(os.Stdout.Fd())) {
-		return "", errors.New("Cannot open a prompt outside of a terminal")
+		return "", errors.New("cannot open a prompt outside of a terminal")
 	}
 
 	fmt.Printf("\n%s :\n > ", greenStyle.Apply(strings.TrimSpace(q.Label)))
@@ -233,7 +233,7 @@ func askHiddenQuestion(q question) (string, error) {
 			return string(answerBytes), err
 		}
 
-		return "", fmt.Errorf("There was an error reading the stdin (%s)", err)
+		return "", fmt.Errorf("there was an error reading the stdin: %w", err)
 	}
 
 	return string(answerBytes), nil
@@ -241,7 +241,7 @@ func askHiddenQuestion(q question) (string, error) {
 
 func askRegularQuestion(q question) (string, error) {
 	if !term.IsTerminal(int(os.Stdout.Fd())) {
-		return "", errors.New("Cannot open a prompt outside of a terminal")
+		return "", errors.New("cannot open a prompt outside of a terminal")
 	}
 
 	var prompt string
@@ -260,7 +260,7 @@ func askRegularQuestion(q question) (string, error) {
 			return answer, err
 		}
 
-		return answer, fmt.Errorf("There was an error reading the stdin (%s)", err)
+		return answer, fmt.Errorf("there was an error reading the stdin: %w", err)
 	}
 
 	if answer == "\n" && q.DefaultAnswer != "" {
